@@ -1,0 +1,1 @@
+console.log("Ghost Mechanic wczytany i gotowy do akcji!");
