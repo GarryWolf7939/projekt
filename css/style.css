@@ -1,8 +1,103 @@
-/* Usunięcie marginesów, żeby obraz z kamery zajmował 100% ekranu */
+/* Podstawowy reset, o który prosiłeś */
 body, html {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Kontener zdejmujący kliknięcia z pustych miejsc ekranu */
+#ui-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Przepuszcza kliknięcia w puste tło do kamery AR */
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Wypycha panel na sam dół */
+}
+
+/* Panel dolny (Bottom Sheet) z efektem Glassmorphism */
+#info-panel {
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(10px); /* Magiczne rozmycie tła kamery */
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 20px 20px 30px 20px;
+    pointer-events: auto; /* Łapie kliknięcia w samym menu */
+    
+    /* Animacja wyjazdu z dołu */
+    transform: translateY(110%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* Klasy sterujące widocznością panelu */
+#info-panel.visible {
+    transform: translateY(0);
+}
+
+#info-panel.hidden {
+    transform: translateY(110%);
+}
+
+/* Górna belka panelu */
+.panel-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Pigułka na samej górze menu (element estetyczny) */
+.drag-pill {
+    width: 50px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+#info-title {
+    margin: 0;
+    font-size: 1.4rem;
+    text-align: center;
+    color: #FFC107; /* Żółty akcent mechaniczny */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.panel-content p {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    margin-bottom: 25px;
+    color: #E0E0E0;
+}
+
+/* Przycisk akcji */
+#close-btn {
+    width: 100%;
+    padding: 14px;
+    background: #FFC107;
+    color: #111;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+#close-btn:active {
+    background: #e0a800;
+    transform: scale(0.98);
 }

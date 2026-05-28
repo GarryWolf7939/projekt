@@ -1,0 +1,36 @@
+{
+    "Mazda_3_1.6_2010": {
+        "name": "Mazda 3 1.6 MZR 2010",
+        "target_file": "assets/oslona.mind",
+        "markers":[
+            {
+                "id": "oil",
+                "label": "Wlew oleju",
+                "color": "yellow",
+                "position": "0.3 0.1 0", 
+                "description": "Dolewaj tylko na zimnym silniku!"
+            },
+            {
+                "id": "oil_dipstick",
+                "label": "Bagnet oleju",
+                "color": "orange",
+                "position": "0.4 0.1 0.1",
+                "description": "Sprawdzaj poziom oleju regularnie, najlepiej co miesiąc."
+            },
+            {
+                "id": "washer",
+                "label": "Płyn do spryskiwaczy",
+                "color": "blue",
+                "position": "-0.5 -0.2 0.1",
+                "description": "Zimowy płyn do -20°C."  
+            },
+            {
+                "id": "coolant",
+                "label": "Płyn chłodniczy",
+                "color": "green",
+                "position": "0.1 0.3 0.2",
+                "description": "Używaj tylko płynu zalecanego przez producenta."
+            }
+        ]
+    }
+}
