@@ -14,31 +14,38 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // Pętla generująca wskaźniki (Z HITBOXAMI, ALE BEZ PULSOWANIA)
+    // Pętla generująca wskaźniki (Z HITBOXAMI I NOWYMI STOŻKAMI)
     carData.markers.forEach(marker => {
         
-        // Niewidzialny obszar łapiący grube palce (Hitbox)
+        // 1. Niewidzialny obszar łapiący grube palce (Hitbox) - Zostaje bez zmian!
         const hitbox = document.createElement('a-entity');
         hitbox.setAttribute('geometry', 'primitive: sphere; radius: 0.15'); 
         hitbox.setAttribute('material', 'transparent: true; opacity: 0'); 
         hitbox.setAttribute('position', marker.position); 
         hitbox.setAttribute('class', 'clickable'); 
 
-        // Widzialna, statyczna kropka wewnątrz
+        // 2. NOWOŚĆ: Elegancki stożek (wskaźnik) wewnątrz hitboxa
         const visualPoint = document.createElement('a-cone');
-        visualPoint.setAttribute('radius-bottom', '0.02');
-        visualPoint.setAttribute('radius-top', '0.01');
-        visualPoint.setAttribute('height', '0.07');
-        visualPoint.setAttribute('rotation', '180 0 0'); 
+        
+        // Parametry geometrii stożka
+        visualPoint.setAttribute('radius-bottom', '0.02'); // Szerokość bazy (2 cm)
+        visualPoint.setAttribute('radius-top', '0');       // Szpic (0 cm)
+        visualPoint.setAttribute('height', '0.06');        // Długość wskaźnika (6 cm)
         visualPoint.setAttribute('color', marker.color);
-        visualPoint.setAttribute('position', '0 0 0'); 
-        // USUNIĘTO ANIMACJĘ PULSOWANIA
+        
+        // Standardowo stożek patrzy szpicem w górę. Odwracamy go o 180 stopni na osi X, żeby celował w dół!
+        visualPoint.setAttribute('rotation', '180 0 0');
+        
+        // Przesuwamy go lekko w górę na osi Y (o połowę jego wysokości - 3cm), 
+        // żeby sam szpic idealnie dotykał współrzędnych X,Y,Z z JSON-a
+        visualPoint.setAttribute('position', '0 0.03 0'); 
 
+        // Wrzucamy stożek do niewidzialnego hitboxa
         hitbox.appendChild(visualPoint);
 
-        // PANCERNE OTWIERANIE PANELU (Tylko event od A-Frame)
+        // PANCERNE OTWIERANIE PANELU (Klikamy w Hitboxa)
         hitbox.addEventListener('click', function (evt) {
-            evt.stopPropagation(); // Ubijamy propagację zdarzenia
+            evt.stopPropagation();
             
             infoTitle.innerText = marker.label;
             infoDesc.innerText = marker.desc;
