@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         point.setAttribute('class', 'clickable'); // Przypinamy klasę, żeby raycaster to wykrył
         
         // Dodajemy animację pulsowania (lekko powiększony rozmach dla mniejszej kropki)
-        point.setAttribute('animation', 'property: scale; to: 1.5 1.5 1.5; dir: alternate; dur: 800; loop: true; easing: easeInOutSine');
+        //point.setAttribute('animation', 'property: scale; to: 1.5 1.5 1.5; dir: alternate; dur: 800; loop: true; easing: easeInOutSine');
 
         // ZMIANA 2: Dedykowana funkcja z blokadami propagacji
         const showInfoPanel = (event) => {
