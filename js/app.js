@@ -25,8 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
         hitbox.setAttribute('class', 'clickable'); 
 
         // Widzialna, statyczna kropka wewnątrz
-        const visualPoint = document.createElement('a-sphere');
-        visualPoint.setAttribute('radius', '0.02'); 
+        const visualPoint = document.createElement('a-cone');
+        visualPoint.setAttribute('radius-bottom', '0.03');
+        visualPoint.setAttribute('radius-top', '0.01');
+        visualPoint.setAttribute('height', '0.05'); 
         visualPoint.setAttribute('color', marker.color);
         visualPoint.setAttribute('position', '0 0 0'); 
         // USUNIĘTO ANIMACJĘ PULSOWANIA
