@@ -1,7 +1,7 @@
 {
     "Mazda_3_1.6_2010": {
         "name": "Mazda 3 1.6 MZR 2010",
-        "target_file": "../assets/oslona.mind",
+        "target_file": "assets/oslona.mind",
         "markers":[
             {
                 "id": "oil",
