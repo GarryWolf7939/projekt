@@ -37,30 +37,40 @@ document.addEventListener("DOMContentLoaded", () => {
     carData.markers.forEach(marker => {
         // Tworzymy trójwymiarową sferę
         const point = document.createElement('a-sphere');
-        point.setAttribute('radius', '0.08'); // Rozmiar znacznika
+        
+        // ZMIANA 1: Zmniejszony rozmiar kropki (z 0.08 na 0.02)
+        point.setAttribute('radius', '0.02'); 
         point.setAttribute('color', marker.color);
         point.setAttribute('position', marker.position); // Magia - zaczytywanie z bazy!
         point.setAttribute('class', 'clickable'); // Przypinamy klasę, żeby raycaster to wykrył
         
-        // Dodajemy animację pulsowania
-        point.setAttribute('animation', 'property: scale; to: 1.3 1.3 1.3; dir: alternate; dur: 800; loop: true; easing: easeInOutSine');
+        // Dodajemy animację pulsowania (lekko powiększony rozmach dla mniejszej kropki)
+        point.setAttribute('animation', 'property: scale; to: 1.5 1.5 1.5; dir: alternate; dur: 800; loop: true; easing: easeInOutSine');
 
-        // Obsługa kliknięcia palcem w konkretny znacznik
-        point.addEventListener('click', () => {
+        // ZMIANA 2: Dedykowana funkcja z blokadami propagacji
+        const showInfoPanel = (event) => {
+            event.preventDefault(); // Blokuje domyślne zachowanie przeglądarki
+            event.stopPropagation(); // Nie puszcza kliknięcia dalej w tło
+            
             infoTitle.innerText = marker.label;
             infoDesc.innerText = marker.desc;
             
             // Wysuwamy panel
             infoPanel.classList.remove('hidden');
             infoPanel.classList.add('visible');
-        });
+        };
+
+        // ZMIANA 3: Nasłuchiwanie na click oraz touchstart (dla smartfonów)
+        point.addEventListener('click', showInfoPanel);
+        point.addEventListener('touchstart', showInfoPanel);
 
         // Wrzucamy kropkę na scenę, "przyklejając" ją do osłony silnika
         anchor.appendChild(point);
     });
 
     // Zamykanie panelu przyciskiem "Zrozumiałem"
-    closeBtn.addEventListener('click', () => {
+    closeBtn.addEventListener('click', (event) => {
+        event.preventDefault();
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
