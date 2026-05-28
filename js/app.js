@@ -14,37 +14,30 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // Pętla generująca wskaźniki (Z HITBOXAMI I NOWYMI STOŻKAMI)
     carData.markers.forEach(marker => {
         
-        // 1. Niewidzialny obszar łapiący grube palce (Hitbox) - Zostaje bez zmian!
+        // 1. OGROMNY HITBOX (Pół metra!)
         const hitbox = document.createElement('a-entity');
-        hitbox.setAttribute('geometry', 'primitive: sphere; radius: 0.15'); 
-        hitbox.setAttribute('material', 'transparent: true; opacity: 0'); 
+        hitbox.setAttribute('geometry', 'primitive: sphere; radius: 0.25'); 
+        // Triki na optymalizację WebGL - 1% przezroczystości, żeby grafika tego nie skasowała
+        hitbox.setAttribute('material', 'color: red; transparent: true; opacity: 0.01'); 
         hitbox.setAttribute('position', marker.position); 
         hitbox.setAttribute('class', 'clickable'); 
 
-        // 2. NOWOŚĆ: Elegancki stożek (wskaźnik) wewnątrz hitboxa
+        // 2. WIDZIALNY STOŻEK (Szpic)
         const visualPoint = document.createElement('a-cone');
-        
-        // Parametry geometrii stożka
-        visualPoint.setAttribute('radius-bottom', '0.02'); // Szerokość bazy (2 cm)
-        visualPoint.setAttribute('radius-top', '0');       // Szpic (0 cm)
-        visualPoint.setAttribute('height', '0.06');        // Długość wskaźnika (6 cm)
+        visualPoint.setAttribute('radius-bottom', '0.02');
+        visualPoint.setAttribute('radius-top', '0');       
+        visualPoint.setAttribute('height', '0.06');        
         visualPoint.setAttribute('color', marker.color);
-        
-        // Standardowo stożek patrzy szpicem w górę. Odwracamy go o 180 stopni na osi X, żeby celował w dół!
         visualPoint.setAttribute('rotation', '180 0 0');
-        
-        // Przesuwamy go lekko w górę na osi Y (o połowę jego wysokości - 3cm), 
-        // żeby sam szpic idealnie dotykał współrzędnych X,Y,Z z JSON-a
         visualPoint.setAttribute('position', '0 0.03 0'); 
-
-        // Wrzucamy stożek do niewidzialnego hitboxa
+        
         hitbox.appendChild(visualPoint);
 
-        // PANCERNE OTWIERANIE PANELU (Klikamy w Hitboxa)
-        hitbox.addEventListener('click', function (evt) {
+        // Funkcja uodporniona na podwójne odpalenia
+        const triggerPanel = (evt) => {
+            evt.preventDefault();
             evt.stopPropagation();
             
             infoTitle.innerText = marker.label;
@@ -52,19 +45,23 @@ document.addEventListener("DOMContentLoaded", () => {
             
             infoPanel.classList.remove('hidden');
             infoPanel.classList.add('visible');
-        });
+        };
+
+        // Podpinamy natywne zachowania przeglądarki i mobilne pacnięcia palcem
+        hitbox.addEventListener('click', triggerPanel);
+        hitbox.addEventListener('touchstart', triggerPanel);
 
         anchor.appendChild(hitbox);
     });
 
-    // PANCERNE ZAMYKANIE PANELU (TYLKO przez przycisk)
+    // Zamykanie panelu przyciskiem
     closeBtn.addEventListener('click', (event) => {
         event.preventDefault();
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
 
-    // --- LOGIKA LATARKI (Zostaje bez zmian) ---
+    // Latarka
     let isTorchOn = false;
     if (flashlightBtn) {
         flashlightBtn.addEventListener('click', async (e) => {
@@ -82,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const capabilities = track.getCapabilities && track.getCapabilities();
                 
                 if (!capabilities || !capabilities.torch) {
-                    alert("Twoja przeglądarka lub sprzęt blokuje dostęp do latarki z poziomu strony WWW.");
+                    alert("Twoja przeglądarka blokuje dostęp do latarki z poziomu strony WWW.");
                     return;
                 }
 

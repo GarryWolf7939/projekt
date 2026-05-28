@@ -32,6 +32,7 @@
           <line x1="12" y1="12" x2="12" y2="12"></line>
         </svg>
       </button>
+
       <div id="info-panel" class="hidden">
         <div class="panel-header">
           <div class="drag-pill"></div>
@@ -50,14 +51,10 @@
       renderer="colorManagement: true, physicallyCorrectLights"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
+      cursor="fuse: false; rayOrigin: mouse;"
+      raycaster="objects: .clickable"
     >
-      >
-      <a-camera
-        position="0 0 0"
-        look-controls="enabled: false"
-        cursor="fuse: false; rayOrigin: mouse;"
-        raycaster="objects: .clickable"
-      ></a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="engine-anchor" mindar-image-target="targetIndex: 0">
       </a-entity>
