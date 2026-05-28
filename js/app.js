@@ -5,9 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const infoTitle = document.getElementById('info-title');
     const infoDesc = document.getElementById('info-desc');
     const closeBtn = document.getElementById('close-btn');
-    const flashlightBtn = document.getElementById('flashlight-btn'); // Nowy element!
+    const flashlightBtn = document.getElementById('flashlight-btn');
 
-    // To jest nasza "Baza Danych". W przyszłości zrobicie tu fetch('cars.json')
+    // To jest nasza "Baza Danych"
     const carData = {
         markers: [
             { 
@@ -34,21 +34,22 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // Pętla generująca wskaźniki (wirtualne kropki)
+    // FLAGA: Zabezpieczenie przed błędem podwójnego kliknięcia
+    let isMarkerClicked = false;
+
+    // Pętla generująca wskaźniki
     carData.markers.forEach(marker => {
-        // Tworzymy trójwymiarową sferę
         const point = document.createElement('a-sphere');
         
-        // ZMIANA 1: Zmniejszony rozmiar kropki (z 0.08 na 0.02)
-        point.setAttribute('radius', '0.02'); 
+        // Zwiększony promień do 0.04 (4cm), żeby dało się w to trafić palcem na ekranie!
+        point.setAttribute('radius', '0.04'); 
         point.setAttribute('color', marker.color);
-        point.setAttribute('position', marker.position); // Magia - zaczytywanie z bazy!
-        point.setAttribute('class', 'clickable'); // Przypinamy klasę, żeby raycaster to wykrył
+        point.setAttribute('position', marker.position); 
+        point.setAttribute('class', 'clickable'); 
         
-        // ZMIANA 2: Dedykowana funkcja z blokadami propagacji
-        const showInfoPanel = (event) => {
-            event.preventDefault(); // Blokuje domyślne zachowanie przeglądarki
-            event.stopPropagation(); // Nie puszcza kliknięcia dalej w tło
+        // Obsługa kliknięcia palcem we wskaźnik
+        point.addEventListener('click', () => {
+            isMarkerClicked = true; // Podnosimy flagę: "Użytkownik kliknął w kulkę!"
             
             infoTitle.innerText = marker.label;
             infoDesc.innerText = marker.desc;
@@ -56,13 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
             // Wysuwamy panel
             infoPanel.classList.remove('hidden');
             infoPanel.classList.add('visible');
-        };
 
-        // ZMIANA 3: Nasłuchiwanie na click oraz touchstart (dla smartfonów)
-        point.addEventListener('click', showInfoPanel);
-        point.addEventListener('touchstart', showInfoPanel);
+            // Opuszczamy flagę po ułamku sekundy
+            setTimeout(() => { isMarkerClicked = false; }, 150);
+        });
 
-        // Wrzucamy kropkę na scenę, "przyklejając" ją do osłony silnika
+        // Wrzucamy kropkę na scenę
         anchor.appendChild(point);
     });
 
@@ -73,16 +73,16 @@ document.addEventListener("DOMContentLoaded", () => {
         infoPanel.classList.add('hidden');
     });
 
-    // Sprytny bajer: zamknięcie panelu, gdy ktoś kliknie w puste miejsce na ekranie (poza kulką)
-    document.querySelector('a-scene').addEventListener('click', (e) => {
-        // Jeśli kliknięto coś, co NIE MA klasy 'clickable', chowamy menu
-        if (!e.target.classList.contains('clickable')) {
+    // Zamykanie panelu po kliknięciu w tło (zabezpieczone flagą!)
+    window.addEventListener('click', (e) => {
+        // Jeśli nie kliknięto w marker, nie kliknięto w latarkę i nie kliknięto w sam panel...
+        if (!isMarkerClicked && e.target.id !== 'flashlight-btn' && !e.target.closest('#info-panel')) {
             infoPanel.classList.remove('visible');
             infoPanel.classList.add('hidden');
         }
     });
 
-    // --- NOWA SEKCJA: LOGIKA LATARKI ---
+    // --- LOGIKA LATARKI ---
     let isTorchOn = false;
 
     if (flashlightBtn) {
@@ -91,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
             e.stopPropagation();
 
             try {
-                // Szukamy ukrytego wideo generowanego przez silnik AR
                 const videoElement = document.querySelector('video');
                 if (!videoElement || !videoElement.srcObject) {
                     alert("Kamera jeszcze się ładuje!");
@@ -101,20 +100,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 const stream = videoElement.srcObject;
                 const track = stream.getVideoTracks()[0];
                 
-                // Sprawdzamy, czy urządzenie sprzętowo udostępnia latarkę przeglądarce
                 const capabilities = track.getCapabilities && track.getCapabilities();
                 if (!capabilities || !capabilities.torch) {
-                    alert("Twoja przeglądarka lub sprzęt (np. system iOS) sprzętowo blokuje dostęp do latarki z poziomu strony WWW.");
+                    alert("Twoja przeglądarka lub sprzęt sprzętowo blokuje dostęp do latarki z poziomu strony WWW.");
                     return;
                 }
 
-                // Przełączamy stan
                 isTorchOn = !isTorchOn;
                 await track.applyConstraints({
                     advanced: [{ torch: isTorchOn }]
                 });
 
-                // Zmieniamy wygląd przycisku (klasa .active)
                 if (isTorchOn) {
                     flashlightBtn.classList.add('active');
                 } else {
