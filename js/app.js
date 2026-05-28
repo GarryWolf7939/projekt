@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const infoTitle = document.getElementById('info-title');
     const infoDesc = document.getElementById('info-desc');
     const closeBtn = document.getElementById('close-btn');
+    const flashlightBtn = document.getElementById('flashlight-btn'); // Nowy element!
 
     // To jest nasza "Baza Danych". W przyszłości zrobicie tu fetch('cars.json')
     const carData = {
@@ -44,9 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
         point.setAttribute('position', marker.position); // Magia - zaczytywanie z bazy!
         point.setAttribute('class', 'clickable'); // Przypinamy klasę, żeby raycaster to wykrył
         
-        // Dodajemy animację pulsowania (lekko powiększony rozmach dla mniejszej kropki)
-        //point.setAttribute('animation', 'property: scale; to: 1.5 1.5 1.5; dir: alternate; dur: 800; loop: true; easing: easeInOutSine');
-
         // ZMIANA 2: Dedykowana funkcja z blokadami propagacji
         const showInfoPanel = (event) => {
             event.preventDefault(); // Blokuje domyślne zachowanie przeglądarki
@@ -83,4 +81,50 @@ document.addEventListener("DOMContentLoaded", () => {
             infoPanel.classList.add('hidden');
         }
     });
+
+    // --- NOWA SEKCJA: LOGIKA LATARKI ---
+    let isTorchOn = false;
+
+    if (flashlightBtn) {
+        flashlightBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            try {
+                // Szukamy ukrytego wideo generowanego przez silnik AR
+                const videoElement = document.querySelector('video');
+                if (!videoElement || !videoElement.srcObject) {
+                    alert("Kamera jeszcze się ładuje!");
+                    return;
+                }
+
+                const stream = videoElement.srcObject;
+                const track = stream.getVideoTracks()[0];
+                
+                // Sprawdzamy, czy urządzenie sprzętowo udostępnia latarkę przeglądarce
+                const capabilities = track.getCapabilities && track.getCapabilities();
+                if (!capabilities || !capabilities.torch) {
+                    alert("Twoja przeglądarka lub sprzęt (np. system iOS) sprzętowo blokuje dostęp do latarki z poziomu strony WWW.");
+                    return;
+                }
+
+                // Przełączamy stan
+                isTorchOn = !isTorchOn;
+                await track.applyConstraints({
+                    advanced: [{ torch: isTorchOn }]
+                });
+
+                // Zmieniamy wygląd przycisku (klasa .active)
+                if (isTorchOn) {
+                    flashlightBtn.classList.add('active');
+                } else {
+                    flashlightBtn.classList.remove('active');
+                }
+
+            } catch (err) {
+                console.error("Błąd podczas włączania latarki:", err);
+                alert("Nie udało się uzyskać dostępu do latarki.");
+            }
+        });
+    }
 });
