@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const visualPoint = document.createElement('a-cone');
         visualPoint.setAttribute('radius-bottom', '0.03');
         visualPoint.setAttribute('radius-top', '0.01');
-        visualPoint.setAttribute('height', '0.05'); 
+        visualPoint.setAttribute('height', '1');
+        visualPoint.setAttribute('rotation', '180 0 0'); 
         visualPoint.setAttribute('color', marker.color);
         visualPoint.setAttribute('position', '0 0 0'); 
         // USUNIĘTO ANIMACJĘ PULSOWANIA
