@@ -37,19 +37,34 @@ document.addEventListener("DOMContentLoaded", () => {
     // FLAGA: Zabezpieczenie przed błędem podwójnego kliknięcia
     let isMarkerClicked = false;
 
-    // Pętla generująca wskaźniki
+    // Pętla generująca wskaźniki z NIEWIDZIALNYMI HITBOXAMI
     carData.markers.forEach(marker => {
-        const point = document.createElement('a-sphere');
         
-        // Zwiększony promień do 0.04 (4cm), żeby dało się w to trafić palcem na ekranie!
-        point.setAttribute('radius', '0.04'); 
-        point.setAttribute('color', marker.color);
-        point.setAttribute('position', marker.position); 
-        point.setAttribute('class', 'clickable'); 
-        
-        // Obsługa kliknięcia palcem we wskaźnik
-        point.addEventListener('click', () => {
-            isMarkerClicked = true; // Podnosimy flagę: "Użytkownik kliknął w kulkę!"
+        // 1. TWORZYMY HITBOX (Wielka, niewidzialna tarcza na palec)
+        const hitbox = document.createElement('a-entity');
+        // Tworzymy sferę o promieniu 15cm (ogromny obszar kliknięcia)
+        hitbox.setAttribute('geometry', 'primitive: sphere; radius: 0.15'); 
+        // Robimy ją w 100% przezroczystą!
+        hitbox.setAttribute('material', 'transparent: true; opacity: 0'); 
+        // Pozycja hitboxa to pozycja znacznika z bazy danych
+        hitbox.setAttribute('position', marker.position); 
+        // Raycaster (laser od klikania) będzie widział TYLKO ten element
+        hitbox.setAttribute('class', 'clickable'); 
+
+        // 2. TWORZYMY WIDZIALNĄ KROPKĘ (Tylko do wyglądu)
+        const visualPoint = document.createElement('a-sphere');
+        visualPoint.setAttribute('radius', '0.02'); // Mała, ładna kropeczka (2cm)
+        visualPoint.setAttribute('color', marker.color);
+        // Kropka jest W ŚRODKU hitboxa, więc jej pozycja to 0 0 0 względem niego
+        visualPoint.setAttribute('position', '0 0 0'); 
+        visualPoint.setAttribute('animation', 'property: scale; to: 1.5 1.5 1.5; dir: alternate; dur: 800; loop: true; easing: easeInOutSine');
+
+        // Wkładamy widzialną kropkę do środka niewidzialnego hitboxa
+        hitbox.appendChild(visualPoint);
+
+        // Obsługa kliknięcia palcem (podpinamy pod wielkiego Hitboxa, a nie małą kropkę!)
+        const showInfoPanel = () => {
+            isMarkerClicked = true; // Podnosimy flagę
             
             infoTitle.innerText = marker.label;
             infoDesc.innerText = marker.desc;
@@ -60,10 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Opuszczamy flagę po ułamku sekundy
             setTimeout(() => { isMarkerClicked = false; }, 150);
-        });
+        };
 
-        // Wrzucamy kropkę na scenę
-        anchor.appendChild(point);
+        hitbox.addEventListener('click', showInfoPanel);
+        hitbox.addEventListener('touchstart', showInfoPanel);
+
+        // Wrzucamy gotowy zestaw (Hitbox + Kropka w środku) na scenę
+        anchor.appendChild(hitbox);
     });
 
     // Zamykanie panelu przyciskiem "Zrozumiałem"
@@ -73,9 +91,8 @@ document.addEventListener("DOMContentLoaded", () => {
         infoPanel.classList.add('hidden');
     });
 
-    // Zamykanie panelu po kliknięciu w tło (zabezpieczone flagą!)
+    // Zamykanie panelu po kliknięciu w tło
     window.addEventListener('click', (e) => {
-        // Jeśli nie kliknięto w marker, nie kliknięto w latarkę i nie kliknięto w sam panel...
         if (!isMarkerClicked && e.target.id !== 'flashlight-btn' && !e.target.closest('#info-panel')) {
             infoPanel.classList.remove('visible');
             infoPanel.classList.add('hidden');
