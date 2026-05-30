@@ -1,4 +1,4 @@
-/* Podstawowy reset, o który prosiłeś */
+/* Podstawowy reset */
 body, html {
     margin: 0;
     padding: 0;
@@ -8,38 +8,35 @@ body, html {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Kontener zdejmujący kliknięcia z pustych miejsc ekranu */
+/* Kontener UI */
 #ui-container {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Przepuszcza kliknięcia w puste tło do kamery AR */
+    pointer-events: none;
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Wypycha panel na sam dół */
+    justify-content: flex-end;
 }
 
-/* Panel dolny (Bottom Sheet) z efektem Glassmorphism */
+/* Panel dolny */
 #info-panel {
     background: rgba(20, 20, 20, 0.85);
-    backdrop-filter: blur(10px); /* Magiczne rozmycie tła kamery */
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: white;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     padding: 20px 20px 30px 20px;
-    pointer-events: auto; /* Łapie kliknięcia w samym menu */
-    
-    /* Animacja wyjazdu z dołu */
+    pointer-events: auto;
     transform: translateY(110%);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6);
 }
 
-/* Klasy sterujące widocznością panelu */
 #info-panel.visible {
     transform: translateY(0);
 }
@@ -48,7 +45,7 @@ body, html {
     transform: translateY(110%);
 }
 
-/* Górna belka panelu */
+/* Nagłówek panelu */
 .panel-header {
     display: flex;
     flex-direction: column;
@@ -58,7 +55,6 @@ body, html {
     margin-bottom: 15px;
 }
 
-/* Pigułka na samej górze menu (element estetyczny) */
 .drag-pill {
     width: 50px;
     height: 5px;
@@ -71,7 +67,7 @@ body, html {
     margin: 0;
     font-size: 1.4rem;
     text-align: center;
-    color: #FFC107; /* Żółty akcent mechaniczny */
+    color: #FFC107;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -83,7 +79,6 @@ body, html {
     color: #E0E0E0;
 }
 
-/* Przycisk akcji */
 #close-btn {
     width: 100%;
     padding: 14px;
@@ -102,13 +97,14 @@ body, html {
     transform: scale(0.98);
 }
 
+/* Przycisk latarki */
 #flashlight-btn {
     position: absolute;
     top: 20px;
     right: 20px;
     width: 55px;
     height: 55px;
-    border-radius: 50%; /* Robi idealne koło */
+    border-radius: 50%;
     background: rgba(20, 20, 20, 0.7);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
@@ -130,7 +126,6 @@ body, html {
     transition: stroke 0.3s ease;
 }
 
-/* Stan, gdy latarka jest włączona */
 #flashlight-btn.active {
     background: #FFC107;
     border-color: #FFC107;
@@ -139,5 +134,27 @@ body, html {
 }
 
 #flashlight-btn.active svg {
-    stroke: #111; /* Zmiana koloru ikony na ciemny */
+    stroke: #111;
+}
+
+/* Komunikat focusowania */
+#focus-toast {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1002;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+}
+
+#focus-toast.show {
+    opacity: 1;
 }
