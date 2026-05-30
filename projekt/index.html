@@ -12,6 +12,9 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
     <link rel="stylesheet" href="css/style.css" />
+    
+    <!-- vConsole do debugowania na telefonie -->
+    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
   </head>
   <body>
     <div id="ui-container">
@@ -59,5 +62,12 @@
     </a-scene>
 
     <script src="js/app.js"></script>
+    
+    <!-- Uruchom vConsole -->
+    <script>
+      var vConsole = new VConsole();
+      console.log("✅ vConsole działa! Szukaj zielonego przycisku na ekranie");
+      console.log("📱 UnderHood AR - wersja z debugowaniem");
+    </script>
   </body>
 </html>
