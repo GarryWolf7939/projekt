@@ -177,7 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (!marker.classList.contains('highlight')) {
                         marker.classList.add('highlight');
                         
-                        // Znajdź ID znacznika
                         const markerId = marker.id.replace('marker-', '');
                         const markerData = carData.markers.find(m => m.id === markerId);
                         if (markerData) {
@@ -197,12 +196,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Obsługa przycisku asysty
     if (assistModeBtn) {
-        assistModeBtn.addEventListener('click', () => {
+        assistModeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             assistModeActive = !assistModeActive;
             
             if (assistModeActive) {
                 assistModeBtn.classList.add('active');
-                // Pokaż znaczniki TYLKO jeśli marker jest wykryty
                 if (buttonsContainer.classList.contains('visible')) {
                     showScreenMarkers();
                 }
@@ -216,7 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Gdy wykryto marker
     anchor.addEventListener("targetFound", () => {
         buttonsContainer.classList.add('visible');
-        // Pokaż znaczniki tylko jeśli tryb asysty jest włączony
         if (assistModeActive) {
             showScreenMarkers();
         }
