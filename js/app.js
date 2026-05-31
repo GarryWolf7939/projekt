@@ -123,4 +123,107 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (err) { console.error("Błąd włączania latarki:", err); }
         });
     }
+    // --- RATUNKOWY HACK NA OBRACANIE EKRANU ---
+    // Nasłuchujemy zmiany orientacji urządzenia
+    window.addEventListener("orientationchange", () => {
+        // Czekamy pół sekundy, aż system telefonu skończy animację obracania
+        setTimeout(() => {
+            window.location.reload(); // Odświeżamy stronę!
+        }, 500);
+    });
+    // --- NAJPROSTSZA ASYSTA AR ---
+    const markersOnScreen = document.getElementById('markers-on-screen');
+    const centerDot = document.getElementById('center-dot');
+    
+    // Pozycje elementów na ekranie (w procentach 0-100)
+    // Lewo/prawo i góra/dół gdzie pokazać znaczniki
+    const screenPositions = {
+        oil: { x: 25, y: 40, name: "🛢️ Bagnet oleju" },
+        washer: { x: 75, y: 35, name: "💧 Płyn spryskiwaczy" },
+        coolant: { x: 50, y: 65, name: "🌡️ Płyn chłodniczy" }
+    };
+    
+    let activeMarkers = {};
+    
+    // Funkcja pokazująca znaczniki na ekranie
+    function showScreenMarkers() {
+        markersOnScreen.innerHTML = '';
+        
+        for (const [id, pos] of Object.entries(screenPositions)) {
+            const marker = document.createElement('div');
+            marker.className = 'screen-marker';
+            marker.id = `marker-${id}`;
+            marker.innerText = pos.name;
+            marker.style.left = `${pos.x}%`;
+            marker.style.top = `${pos.y}%`;
+            marker.style.transform = 'translate(-50%, -50%)';
+            markersOnScreen.appendChild(marker);
+            activeMarkers[id] = marker;
+        }
+        
+        // Sprawdzanie czy celownik trafił w znacznik
+        startHitDetection();
+    }
+    
+    // Funkcja sprawdzająca czy celownik jest na znaczniku
+    function startHitDetection() {
+        // Używamy eventu mousemove/touchmove do śledzenia gdzie celownik
+        // Ale celownik jest na środku, więc sprawdzamy co 0.5s czy coś jest w środku
+        const checkHit = setInterval(() => {
+            // Celownik jest zawsze na środku ekranu (50%, 50%)
+            const centerX = 50;
+            const centerY = 50;
+            
+            for (const [id, marker] of Object.entries(activeMarkers)) {
+                const rect = marker.getBoundingClientRect();
+                const markerCenterX = (rect.left + rect.right) / 2;
+                const markerCenterY = (rect.top + rect.bottom) / 2;
+                const screenCenterX = window.innerWidth / 2;
+                const screenCenterY = window.innerHeight / 2;
+                
+                // Dystans między środkiem ekranu a środkiem znacznika
+                const distance = Math.sqrt(
+                    Math.pow(markerCenterX - screenCenterX, 2) + 
+                    Math.pow(markerCenterY - screenCenterY, 2)
+                );
+                
+                // Jeśli celownik jest blisko znacznika (mniej niż 50px)
+                if (distance < 50) {
+                    if (!marker.classList.contains('highlight')) {
+                        marker.classList.add('highlight');
+                        
+                        // Pokaż panel z informacją o tym elemencie
+                        const markerData = carData.markers.find(m => m.id === id);
+                        if (markerData) {
+                            infoTitle.innerText = markerData.label;
+                            infoDesc.innerText = markerData.desc;
+                            infoPanel.classList.remove('hidden');
+                            infoPanel.classList.add('visible');
+                            
+                            // Krótka wibracja
+                            if ('vibrate' in navigator) navigator.vibrate(50);
+                        }
+                    }
+                } else {
+                    marker.classList.remove('highlight');
+                }
+            }
+        }, 100);
+        
+        // Zatrzymaj sprawdzanie gdy marker zniknie
+        anchor.addEventListener("targetLost", () => {
+            clearInterval(checkHit);
+        }, { once: true });
+    }
+    
+    // Pokaż znaczniki gdy wykryto marker
+    anchor.addEventListener("targetFound", () => {
+        showScreenMarkers();
+    });
+    
+    // Schowaj znaczniki gdy marker zniknie
+    anchor.addEventListener("targetLost", () => {
+        markersOnScreen.innerHTML = '';
+        activeMarkers = {};
+    });
 });
