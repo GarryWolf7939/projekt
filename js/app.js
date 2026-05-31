@@ -11,10 +11,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const assistModeBtn = document.getElementById('assist-mode-btn');
 
     const buttonsContainer = document.getElementById('marker-buttons-container');
-    const markersOnScreen = document.getElementById('markers-on-screen');
 
-    const assistOverlay = document.getElementById("assist-overlay");
-    const centerDot = document.getElementById("center-dot");
+    const splashScreen = document.getElementById('splash-screen');
+    const startBtn = document.getElementById('start-btn');
+    const sceneEl = document.querySelector('a-scene');
+
+    const markersOnScreen = document.getElementById('markers-on-screen');
+    const centerDot = document.getElementById('center-dot');
+
+    // =========================
+    // START AR (SPLASH)
+    // =========================
+
+    if (startBtn) {
+        startBtn.addEventListener('click', () => {
+            splashScreen.classList.add('hidden');
+            sceneEl.systems["mindar-image-system"].start();
+        });
+    }
 
     // =========================
     // DANE
@@ -24,18 +38,26 @@ document.addEventListener("DOMContentLoaded", () => {
         markers: [
             {
                 id: "oil",
-                label: "Bagnet oleju",
-                color: "#FFC107",
+                label: "Wlew oleju",
+                color: "#ffee00",
                 position: "-0.4 0.1 0.1",
-                desc: "Sprawdzaj poziom oleju na ostudzonym silniku.",
+                desc: "Utrzymuj poziom między MIN i MAX.",
                 icon: "assets/oil.png"
+            },
+            {
+                id: "oil_dipstick",
+                label: "Bagnet oleju",
+                color: "#f3a702",
+                position: "-0.3 0.07 0.1",
+                desc: "Sprawdzaj na zimnym silniku.",
+                icon: "assets/bagnet_oleju.png"
             },
             {
                 id: "washer",
                 label: "Płyn spryskiwaczy",
                 color: "#00BFFF",
                 position: "0.5 -0.2 0",
-                desc: "Używaj płynu zimowego.",
+                desc: "Używaj zimowego płynu.",
                 icon: "assets/washer.png"
             },
             {
@@ -49,8 +71,16 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
+    // mapa do trybu asysty
+    const screenPositions = {
+        oil: { x: 25, y: 40, name: "🛢️ Olej" },
+        oil_dipstick: { x: 30, y: 50, name: "📏 Bagnet" },
+        washer: { x: 75, y: 35, name: "💧 Spryskiwacze" },
+        coolant: { x: 50, y: 65, name: "🌡️ Chłodnica" }
+    };
+
     // =========================
-    // GENEROWANIE MARKERÓW
+    // GENEROWANIE MARKERÓW 3D + UI
     // =========================
 
     carData.markers.forEach(marker => {
@@ -81,34 +111,27 @@ document.addEventListener("DOMContentLoaded", () => {
             infoDesc.innerText = marker.desc;
 
             infoPanel.classList.add('visible');
-            infoPanel.classList.remove('hidden');
         });
 
         buttonsContainer.appendChild(btn);
     });
 
     // =========================
-    // ZAMKNIJ PANEL
+    // PANEL
     // =========================
 
     closeBtn.addEventListener('click', (e) => {
         e.preventDefault();
-
         infoPanel.classList.remove('visible');
-        infoPanel.classList.add('hidden');
     });
 
-    // klik poza UI
     window.addEventListener('click', (e) => {
-
-        if (
-            !e.target.closest('#info-panel') &&
+        if (!e.target.closest('#info-panel') &&
             !e.target.closest('.ui-marker-btn') &&
             e.target.id !== 'flashlight-btn' &&
             e.target.id !== 'assist-mode-btn'
         ) {
             infoPanel.classList.remove('visible');
-            infoPanel.classList.add('hidden');
         }
     });
 
@@ -125,19 +148,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 const video = document.querySelector('video');
-
-                if (!video || !video.srcObject) {
-                    alert("Kamera się ładuje...");
-                    return;
-                }
+                if (!video?.srcObject) return;
 
                 const track = video.srcObject.getVideoTracks()[0];
                 const caps = track.getCapabilities?.();
 
-                if (!caps || !caps.torch) {
-                    alert("Brak obsługi latarki.");
-                    return;
-                }
+                if (!caps?.torch) return;
 
                 isTorchOn = !isTorchOn;
 
@@ -154,17 +170,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
-    // TRYB ASYSTY
+    // ASYSTA
     // =========================
 
     let assistModeActive = false;
     let hitInterval = null;
-
-    const screenPositions = {
-        oil: { x: 25, y: 40, name: "🛢️ Bagnet oleju" },
-        washer: { x: 75, y: 35, name: "💧 Spryskiwacze" },
-        coolant: { x: 50, y: 65, name: "🌡️ Chłodnica" }
-    };
 
     function showScreenMarkers() {
 
@@ -177,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
             el.id = `marker-${id}`;
 
             el.innerText = pos.name;
-
             el.style.left = `${pos.x}%`;
             el.style.top = `${pos.y}%`;
             el.style.transform = 'translate(-50%, -50%)';
@@ -189,18 +198,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function hideScreenMarkers() {
-
-        if (hitInterval) {
-            clearInterval(hitInterval);
-            hitInterval = null;
-        }
-
+        clearInterval(hitInterval);
         markersOnScreen.innerHTML = "";
     }
 
     function startHitDetection() {
 
-        if (hitInterval) clearInterval(hitInterval);
+        clearInterval(hitInterval);
 
         hitInterval = setInterval(() => {
 
@@ -218,23 +222,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const dist = Math.hypot(mx - cx, my - cy);
 
+                const id = marker.id.replace("marker-", "");
+                const data = carData.markers.find(m => m.id === id);
+
                 if (dist < 60) {
-
                     marker.classList.add('highlight');
-
-                    const id = marker.id.replace("marker-", "");
-                    const data = carData.markers.find(m => m.id === id);
 
                     if (data) {
                         infoTitle.innerText = data.label;
                         infoDesc.innerText = data.desc;
-
                         infoPanel.classList.add('visible');
-                        infoPanel.classList.remove('hidden');
 
                         if (navigator.vibrate) navigator.vibrate(40);
                     }
-
                 } else {
                     marker.classList.remove('highlight');
                 }
@@ -243,35 +243,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
     }
 
-    // =========================
-    // TOGGLE ASYSTY
-    // =========================
-
     assistModeBtn.addEventListener('click', (e) => {
+
         e.preventDefault();
         e.stopPropagation();
 
         assistModeActive = !assistModeActive;
 
-        if (assistModeActive) {
+        centerDot.classList.toggle('visible', assistModeActive);
+        assistModeBtn.classList.toggle('active', assistModeActive);
 
-            assistModeBtn.classList.add('active');
-
-            centerDot.classList.add('visible');
-            assistOverlay.classList.add('active');
-
-            if (buttonsContainer.classList.contains('visible')) {
-                showScreenMarkers();
-            }
-
+        if (assistModeActive && buttonsContainer.classList.contains('visible')) {
+            showScreenMarkers();
         } else {
-
-            assistModeBtn.classList.remove('active');
-
-            centerDot.classList.remove('visible');
-            assistOverlay.classList.remove('active');
-
             hideScreenMarkers();
+            centerDot.classList.remove('visible');
         }
     });
 
@@ -288,15 +274,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     anchor.addEventListener("targetLost", () => {
-
         buttonsContainer.classList.remove('visible');
-
         infoPanel.classList.remove('visible');
-        infoPanel.classList.add('hidden');
-
-        centerDot.classList.remove('visible');
-        assistOverlay.classList.remove('active');
-
         hideScreenMarkers();
     });
 
