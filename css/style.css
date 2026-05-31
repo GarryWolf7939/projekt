@@ -15,31 +15,29 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Przepuszcza kliknięcia w puste tło do kamery AR */
+    pointer-events: none;
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Wypycha panel na sam dół */
+    justify-content: flex-end;
 }
 
-/* Panel dolny (Bottom Sheet) z efektem Glassmorphism */
+/* Panel dolny */
 #info-panel {
     background: rgba(20, 20, 20, 0.85);
-    backdrop-filter: blur(10px); /* Magiczne rozmycie tła kamery */
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: white;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     padding: 20px 20px 30px 20px;
-    pointer-events: auto; /* Łapie kliknięcia w samym menu */
-    
-    /* Animacja wyjazdu z dołu */
+    pointer-events: auto;
+
     transform: translateY(110%);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6);
 }
 
-/* Klasy sterujące widocznością panelu */
 #info-panel.visible {
     transform: translateY(0);
 }
@@ -48,7 +46,6 @@ body, html {
     transform: translateY(110%);
 }
 
-/* Górna belka panelu */
 .panel-header {
     display: flex;
     flex-direction: column;
@@ -58,7 +55,6 @@ body, html {
     margin-bottom: 15px;
 }
 
-/* Pigułka na samej górze menu (element estetyczny) */
 .drag-pill {
     width: 50px;
     height: 5px;
@@ -71,7 +67,7 @@ body, html {
     margin: 0;
     font-size: 1.4rem;
     text-align: center;
-    color: #FFC107; /* Żółty akcent mechaniczny */
+    color: #FFC107;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -83,7 +79,6 @@ body, html {
     color: #E0E0E0;
 }
 
-/* Przycisk akcji */
 #close-btn {
     width: 100%;
     padding: 14px;
@@ -101,13 +96,14 @@ body, html {
     background: #e0a800;
     transform: scale(0.98);
 }
+
 #flashlight-btn {
     position: absolute;
     top: 20px;
     right: 20px;
     width: 55px;
     height: 55px;
-    border-radius: 50%; /* Robi idealne koło */
+    border-radius: 50%;
     background: rgba(20, 20, 20, 0.7);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
@@ -124,12 +120,14 @@ body, html {
 }
 
 #flashlight-btn svg {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
+    display: block;
+    fill: none;
+    stroke: white;
     transition: stroke 0.3s ease;
 }
 
-/* Stan, gdy latarka jest włączona */
 #flashlight-btn.active {
     background: #FFC107;
     border-color: #FFC107;
@@ -138,10 +136,9 @@ body, html {
 }
 
 #flashlight-btn.active svg {
-    stroke: #111; /* Zmiana koloru ikony na ciemny */
+    stroke: #111;
 }
 
-/* --- Zaktualizowany styl kontenera przycisków --- */
 #marker-buttons-container {
     position: absolute;
     top: 90px;
@@ -151,23 +148,19 @@ body, html {
     gap: 15px;
     z-index: 1001;
 
-    /* Domyślnie ukryte i nieklikalne */
     opacity: 0;
     pointer-events: none;
-    
-    /* Gładkie pojawianie się */
+
     transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateX(20px); /* Lekkie odsunięcie w prawo */
+    transform: translateX(20px);
 }
 
-/* Klasa włączana przez JS po wykryciu silnika */
 #marker-buttons-container.visible {
     opacity: 1;
     pointer-events: auto;
-    transform: translateX(0); /* Wraca na miejsce */
+    transform: translateX(0);
 }
 
-/* Wygląd pojedynczego kółka do klikania */
 .ui-marker-btn {
     width: 50px;
     height: 50px;
@@ -185,13 +178,40 @@ body, html {
 }
 
 .ui-marker-btn:active {
-    transform: scale(0.85); /* Fajny efekt wciśnięcia palcem */
+    transform: scale(0.85);
 }
 
-/* Skalowanie obrazków PNG w przyciskach */
 .ui-marker-btn img {
     width: 60%;
     height: 60%;
     object-fit: contain;
-    pointer-events: none; /* Żeby kliknięcie łapało cały przycisk, a nie sam obrazek */
+    pointer-events: none;
+}
+
+/* DEBUG PANEL */
+
+#debug-log {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+
+    max-height: 180px;
+    overflow-y: auto;
+
+    background: rgba(0, 0, 0, 0.85);
+    color: #00ff00;
+
+    font-size: 12px;
+    line-height: 1.4;
+    font-family: monospace;
+
+    padding: 10px;
+    border-radius: 10px;
+
+    z-index: 99999;
+
+    pointer-events: none;
+
+    word-break: break-word;
 }
