@@ -286,3 +286,58 @@ body, html {
     color: black;
     transform: scale(1.1);
 }
+/* Przycisk trybu asysty (nawigacji) */
+#assist-mode-btn {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(20, 20, 20, 0.7);
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 1002;
+    transition: all 0.3s ease;
+}
+
+#assist-mode-btn.active {
+    background: #FFC107;
+    border-color: #FFC107;
+    color: #111;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+}
+
+#assist-mode-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Dostosowanie w poziomie (landscape) */
+@media screen and (orientation: landscape) {
+    #assist-mode-btn {
+        top: 20px;
+        right: 140px; /* Obok latarki */
+        width: 45px;
+        height: 45px;
+    }
+    
+    #assist-mode-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Kontener przycisków markerów w poziomie */
+    #marker-buttons-container {
+        top: 20px;
+        right: 80px;
+        flex-direction: row;
+        gap: 10px;
+    }
+}
