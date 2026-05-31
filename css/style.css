@@ -144,7 +144,7 @@ body, html {
 /* --- Zaktualizowany styl kontenera przycisków --- */
 #marker-buttons-container {
     position: absolute;
-    top: 90px;
+    top: 160px; /* Przesunięte niżej, żeby nie nachodziło na przycisk asysty */
     right: 20px;
     display: flex;
     flex-direction: column;
@@ -157,14 +157,14 @@ body, html {
     
     /* Gładkie pojawianie się */
     transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateX(20px); /* Lekkie odsunięcie w prawo */
+    transform: translateX(20px);
 }
 
 /* Klasa włączana przez JS po wykryciu silnika */
 #marker-buttons-container.visible {
     opacity: 1;
     pointer-events: auto;
-    transform: translateX(0); /* Wraca na miejsce */
+    transform: translateX(0);
 }
 
 /* Wygląd pojedynczego kółka do klikania */
@@ -223,10 +223,10 @@ body, html {
     }
 
     /* Przesuwamy ikonki nieco wyżej i robimy je ciaśniej */
-    #marker-buttons-container {
+ #marker-buttons-container {
         top: 20px;
-        right: 80px; /* Odsunięcie w lewo, żeby nie wchodziły na latarkę */
-        flex-direction: row; /* Ustawiają się poziomo zamiast pionowo! */
+        right: 140px; /* Odsunięte w prawo, żeby nie nachodziło na przycisk asysty */
+        flex-direction: row;
         gap: 10px;
     }
 }
