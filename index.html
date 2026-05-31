@@ -13,45 +13,45 @@
     <link rel="stylesheet" href="css/style.css?v=2.0" />
   </head>
   <body>
+    <!-- Przyciski na górze (POZA kontenerem ui-container) -->
+    <button id="flashlight-btn" title="Włącz/Wyłącz latarkę">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M18 6c0 2-2 2-2 4v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10c0-2-2-2-2-4V2h12z"
+        ></path>
+        <line x1="6" y1="6" x2="18" y2="6"></line>
+        <line x1="12" y1="12" x2="12" y2="12"></line>
+      </svg>
+    </button>
+
+    <button id="assist-mode-btn" title="Tryb nawigacji">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="12" r="4"></circle>
+        <line x1="12" y1="2" x2="12" y2="4"></line>
+        <line x1="12" y1="20" x2="12" y2="22"></line>
+        <line x1="2" y1="12" x2="4" y2="12"></line>
+        <line x1="20" y1="12" x2="22" y2="12"></line>
+      </svg>
+    </button>
+
     <div id="ui-container">
-      <button id="flashlight-btn" title="Włącz/Wyłącz latarkę">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path
-            d="M18 6c0 2-2 2-2 4v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10c0-2-2-2-2-4V2h12z"
-          ></path>
-          <line x1="6" y1="6" x2="18" y2="6"></line>
-          <line x1="12" y1="12" x2="12" y2="12"></line>
-        </svg>
-      </button>
-
-      <!-- Przycisk trybu asysty (nawigacji) -->
-      <button id="assist-mode-btn" title="Tryb nawigacji">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="10"></circle>
-          <circle cx="12" cy="12" r="4"></circle>
-          <line x1="12" y1="2" x2="12" y2="4"></line>
-          <line x1="12" y1="20" x2="12" y2="22"></line>
-          <line x1="2" y1="12" x2="4" y2="12"></line>
-          <line x1="20" y1="12" x2="22" y2="12"></line>
-        </svg>
-      </button>
-
       <div id="marker-buttons-container"></div>
 
       <div id="info-panel" class="hidden">

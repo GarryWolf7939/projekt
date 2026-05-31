@@ -198,16 +198,15 @@ body, html {
 
 /* --- USTAWIENIA DLA ORIENTACJI POZIOMEJ (LANDSCAPE) --- */
 @media screen and (orientation: landscape) {
-    /* Zwężamy panel informacyjny, żeby nie zasłaniał całego silnika w poziomie */
+    /* Zwężamy panel informacyjny */
     #info-panel {
-        width: 60%; /* Zajmuje tylko 60% szerokości ekranu */
-        left: 20%;  /* Wyśrodkowanie */
+        width: 60%;
+        left: 20%;
         padding: 15px 20px 20px 20px;
         border-top-left-radius: 15px;
         border-top-right-radius: 15px;
     }
 
-    /* Zmniejszamy trochę teksty, bo w poziomie jest mniej miejsca na wysokość */
     #info-title {
         font-size: 1.2rem;
     }
@@ -222,15 +221,27 @@ body, html {
         font-size: 1rem;
     }
 
-    /* Przesuwamy ikonki nieco wyżej i robimy je ciaśniej */
- #marker-buttons-container {
-        top: 20px;
-        right: 140px; /* Odsunięte w prawo, żeby nie nachodziło na przycisk asysty */
+    /* Przyciski markerów w poziomie - ale dalej niżej */
+    #marker-buttons-container {
+        top: 90px; /* Niżej niż przyciski (które są na top:20px) */
+        right: 20px;
         flex-direction: row;
         gap: 10px;
     }
+    
+    /* Przycisk asysty w poziomie */
+    #assist-mode-btn {
+        top: 20px;
+        right: 80px;
+        width: 45px;
+        height: 45px;
+    }
+    
+    #assist-mode-btn svg {
+        width: 22px;
+        height: 22px;
+    }
 }
-/* Prosty celownik centralny */
 #center-dot {
     position: fixed;
     top: 50%;
