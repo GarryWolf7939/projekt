@@ -1,45 +1,56 @@
-/* Podstawowy reset, o który prosiłeś */
-body, html {
+/* =========================
+   RESET
+========================= */
+
+html,
+body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     overflow: hidden;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Kontener zdejmujący kliknięcia z pustych miejsc ekranu */
+/* =========================
+   UI CONTAINER
+========================= */
+
 #ui-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Przepuszcza kliknięcia w puste tło do kamery AR */
+    inset: 0;
+    pointer-events: none;
     z-index: 1000;
+
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Wypycha panel na sam dół */
+    justify-content: flex-end;
 }
 
-/* Panel dolny (Bottom Sheet) z efektem Glassmorphism */
+/* =========================
+   INFO PANEL
+========================= */
+
 #info-panel {
-    background: rgba(20, 20, 20, 0.85);
-    backdrop-filter: blur(10px); /* Magiczne rozmycie tła kamery */
+    background: rgba(20, 20, 20, 0.9);
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+
     color: white;
+
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    padding: 20px 20px 30px 20px;
-    pointer-events: auto; /* Łapie kliknięcia w samym menu */
-    
-    /* Animacja wyjazdu z dołu */
+
+    padding: 20px 20px 30px;
+
+    pointer-events: auto;
+
     transform: translateY(110%);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6);
+    transition: transform 0.3s cubic-bezier(.175,.885,.32,1.275);
+
+    box-shadow: 0 -5px 25px rgba(0,0,0,.6);
 }
 
-/* Klasy sterujące widocznością panelu */
 #info-panel.visible {
     transform: translateY(0);
 }
@@ -48,30 +59,39 @@ body, html {
     transform: translateY(110%);
 }
 
-/* Górna belka panelu */
+/* =========================
+   PANEL HEADER
+========================= */
+
 .panel-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    border-bottom: 1px solid rgba(255,255,255,.1);
+
     padding-bottom: 10px;
     margin-bottom: 15px;
 }
 
-/* Pigułka na samej górze menu (element estetyczny) */
 .drag-pill {
     width: 50px;
     height: 5px;
-    background: rgba(255, 255, 255, 0.3);
+
+    background: rgba(255,255,255,.3);
+
     border-radius: 10px;
     margin-bottom: 15px;
 }
 
 #info-title {
     margin: 0;
+
     font-size: 1.4rem;
     text-align: center;
-    color: #FFC107; /* Żółty akcent mechaniczny */
+
+    color: #FFC107;
+
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -79,130 +99,265 @@ body, html {
 .panel-content p {
     font-size: 1.05rem;
     line-height: 1.5;
+
     margin-bottom: 25px;
+
     color: #E0E0E0;
 }
 
-/* Przycisk akcji */
+/* =========================
+   CLOSE BUTTON
+========================= */
+
 #close-btn {
     width: 100%;
     padding: 14px;
+
     background: #FFC107;
     color: #111;
+
     border: none;
     border-radius: 12px;
+
     font-size: 1.1rem;
     font-weight: 700;
+
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+
+    transition: background .2s, transform .1s;
 }
 
 #close-btn:active {
     background: #e0a800;
-    transform: scale(0.98);
+    transform: scale(.98);
 }
-#flashlight-btn {
+
+/* =========================
+   TOP BUTTONS
+========================= */
+
+#flashlight-btn,
+#assist-mode-btn {
     position: absolute;
     top: 20px;
-    right: 20px;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%; /* Robi idealne koło */
-    background: rgba(20, 20, 20, 0.7);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+
+    width: 60px;
+    height: 60px;
+
+    border-radius: 50%;
+
+    background: rgba(20,20,20,.75);
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    border: 2px solid rgba(255,255,255,.2);
+
     display: flex;
     justify-content: center;
     align-items: center;
+
+    color: white;
+
     cursor: pointer;
     pointer-events: auto;
-    z-index: 1001;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
+    z-index: 1002;
+
+    transition: all .3s ease;
+
+    box-shadow: 0 4px 15px rgba(0,0,0,.3);
 }
 
-#flashlight-btn svg {
-    width: 26px;
-    height: 26px;
-    transition: stroke 0.3s ease;
+#flashlight-btn {
+    right: 20px;
 }
 
-/* Stan, gdy latarka jest włączona */
-#flashlight-btn.active {
+#assist-mode-btn {
+    right: 95px;
+}
+
+#flashlight-btn svg,
+#assist-mode-btn svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2;
+}
+
+#flashlight-btn.active,
+#assist-mode-btn.active {
     background: #FFC107;
     border-color: #FFC107;
+
     color: #111;
-    box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+
+    box-shadow: 0 0 20px rgba(255,193,7,.6);
 }
 
-#flashlight-btn.active svg {
-    stroke: #111; /* Zmiana koloru ikony na ciemny */
+#flashlight-btn.active svg,
+#assist-mode-btn.active svg {
+    stroke: #111;
 }
 
-/* --- Zaktualizowany styl kontenera przycisków --- */
+/* =========================
+   MARKER BUTTONS
+========================= */
+
 #marker-buttons-container {
     position: absolute;
-    top: 160px; /* Przesunięte niżej, żeby nie nachodziło na przycisk asysty */
+
+    top: 110px;
     right: 20px;
+
     display: flex;
     flex-direction: column;
-    gap: 15px;
+
+    gap: 12px;
+
     z-index: 1001;
 
-    /* Domyślnie ukryte i nieklikalne */
     opacity: 0;
     pointer-events: none;
-    
-    /* Gładkie pojawianie się */
-    transition: opacity 0.3s ease, transform 0.3s ease;
+
+    transition:
+        opacity .3s ease,
+        transform .3s ease;
+
     transform: translateX(20px);
 }
 
-/* Klasa włączana przez JS po wykryciu silnika */
 #marker-buttons-container.visible {
     opacity: 1;
     pointer-events: auto;
     transform: translateX(0);
 }
 
-/* Wygląd pojedynczego kółka do klikania */
 .ui-marker-btn {
     width: 50px;
     height: 50px;
+
     border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.8);
-    color: #111;
-    font-weight: 900;
-    font-size: 1.2rem;
+
+    border: 3px solid rgba(255,255,255,.8);
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    box-shadow: 0 4px 15px rgba(0,0,0,.5);
+
+    transition: transform .2s cubic-bezier(.175,.885,.32,1.275);
 }
 
 .ui-marker-btn:active {
-    transform: scale(0.85); /* Fajny efekt wciśnięcia palcem */
+    transform: scale(.85);
 }
 
-/* Skalowanie obrazków PNG w przyciskach */
 .ui-marker-btn img {
     width: 60%;
     height: 60%;
+
     object-fit: contain;
-    pointer-events: none; /* Żeby kliknięcie łapało cały przycisk, a nie sam obrazek */
+
+    pointer-events: none;
 }
 
-/* --- USTAWIENIA DLA ORIENTACJI POZIOMEJ (LANDSCAPE) --- */
+/* =========================
+   CENTER CROSSHAIR
+========================= */
+
+#center-dot {
+    position: fixed;
+
+    top: 50%;
+    left: 50%;
+
+    width: 20px;
+    height: 20px;
+
+    transform: translate(-50%, -50%);
+
+    z-index: 9999;
+
+    pointer-events: none;
+}
+
+#center-dot::before,
+#center-dot::after {
+    content: "";
+
+    position: absolute;
+
+    background: rgba(255,193,7,.9);
+    box-shadow: 0 0 5px #FFC107;
+}
+
+#center-dot::before {
+    top: 9px;
+    left: -15px;
+
+    width: 50px;
+    height: 2px;
+}
+
+#center-dot::after {
+    top: -15px;
+    left: 9px;
+
+    width: 2px;
+    height: 50px;
+}
+
+/* =========================
+   SCREEN MARKERS
+========================= */
+
+.screen-marker {
+    position: fixed;
+
+    background: rgba(0,0,0,.7);
+
+    color: #FFC107;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    border-left: 3px solid #FFC107;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    z-index: 9998;
+
+    transition: all .1s;
+}
+
+.screen-marker.highlight {
+    background: #FFC107;
+    color: black;
+
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* =========================
+   LANDSCAPE
+========================= */
+
 @media screen and (orientation: landscape) {
-    /* Zwężamy panel informacyjny */
+
     #info-panel {
         width: 60%;
-        left: 20%;
-        padding: 15px 20px 20px 20px;
+        margin: 0 auto;
+
+        padding: 15px 20px 20px;
+
         border-top-left-radius: 15px;
         border-top-right-radius: 15px;
     }
@@ -212,7 +367,7 @@ body, html {
     }
 
     .panel-content p {
-        font-size: 0.95rem;
+        font-size: .95rem;
         margin-bottom: 15px;
     }
 
@@ -221,133 +376,33 @@ body, html {
         font-size: 1rem;
     }
 
-    /* Przyciski markerów w poziomie - ale dalej niżej */
+    #flashlight-btn,
+    #assist-mode-btn {
+        width: 50px;
+        height: 50px;
+        top: 15px;
+    }
+
+    #flashlight-btn {
+        right: 15px;
+    }
+
+    #assist-mode-btn {
+        right: 75px;
+    }
+
+    #flashlight-btn svg,
+    #assist-mode-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+
     #marker-buttons-container {
-        top: 90px; /* Niżej niż przyciski (które są na top:20px) */
-        right: 20px;
+        top: 75px;
+        right: 15px;
+
         flex-direction: row;
         gap: 10px;
     }
-    
-    /* Przycisk asysty w poziomie */
-    #assist-mode-btn {
-        top: 20px;
-        right: 80px;
-        width: 45px;
-        height: 45px;
-    }
-    
-    #assist-mode-btn svg {
-        width: 22px;
-        height: 22px;
-    }
-}
-#center-dot {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    pointer-events: none;
 }
 
-#center-dot::before,
-#center-dot::after {
-    content: '';
-    position: absolute;
-    background: rgba(255, 193, 7, 0.9);
-    box-shadow: 0 0 5px #FFC107;
-}
-
-#center-dot::before {
-    top: 9px;
-    left: -15px;
-    width: 50px;
-    height: 2px;
-}
-
-#center-dot::after {
-    top: -15px;
-    left: 9px;
-    width: 2px;
-    height: 50px;
-}
-
-/* Znaczniki na ekranie (bagnet, płyn itp) */
-.screen-marker {
-    position: fixed;
-    background: rgba(0,0,0,0.7);
-    color: #FFC107;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    z-index: 9998;
-    pointer-events: none;
-    white-space: nowrap;
-    border-left: 3px solid #FFC107;
-    transition: all 0.1s;
-}
-
-/* Gdy celownik trafi w znacznik */
-.screen-marker.highlight {
-    background: #FFC107;
-    color: black;
-    transform: scale(1.1);
-}
-/* Przycisk trybu asysty (nawigacji) - ten sam styl co latarka */
-#assist-mode-btn {
-    position: absolute;
-    top: 20px;
-    right: 90px; /* Obok latarki (latarka ma right:20px) */
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: rgba(20, 20, 20, 0.7);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    pointer-events: auto;
-    z-index: 1002;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-#assist-mode-btn svg {
-    width: 26px;
-    height: 26px;
-    transition: stroke 0.3s ease;
-}
-
-#assist-mode-btn.active {
-    background: #FFC107;
-    border-color: #FFC107;
-    color: #111;
-    box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
-}
-
-#assist-mode-btn.active svg {
-    stroke: #111;
-}
-
-/* Dostosowanie w poziomie (landscape) */
-@media screen and (orientation: landscape) {
-    #assist-mode-btn {
-        top: 20px;
-        right: 80px;
-        width: 45px;
-        height: 45px;
-    }
-    
-    #assist-mode-btn svg {
-        width: 22px;
-        height: 22px;
-    }
-}
