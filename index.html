@@ -4,156 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>UnderHood AR - Ghost Mechanic</title>
+
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
-    
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body,html{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',sans-serif}
-        #ui-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000;display:flex;flex-direction:column;justify-content:flex-end}
-        #info-panel{background:rgba(20,20,20,0.85);backdrop-filter:blur(10px);color:white;border-top-left-radius:20px;border-top-right-radius:20px;padding:20px;pointer-events:auto;transform:translateY(110%);transition:transform 0.3s}
-        #info-panel.visible{transform:translateY(0)}
-        #info-panel.hidden{transform:translateY(110%)}
-        .panel-header{display:flex;flex-direction:column;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;margin-bottom:15px}
-        .drag-pill{width:50px;height:5px;background:rgba(255,255,255,0.3);border-radius:10px;margin-bottom:15px}
-        #info-title{margin:0;font-size:1.4rem;text-align:center;color:#FFC107;text-transform:uppercase}
-        .panel-content p{font-size:1rem;line-height:1.4;margin-bottom:20px;color:#E0E0E0}
-        #close-btn{width:100%;padding:14px;background:#FFC107;color:#111;border:none;border-radius:12px;font-weight:700;cursor:pointer}
-        #flashlight-btn{position:absolute;top:20px;right:20px;width:55px;height:55px;border-radius:50%;background:rgba(20,20,20,0.7);backdrop-filter:blur(5px);color:white;border:2px solid rgba(255,255,255,0.2);display:flex;justify-content:center;align-items:center;cursor:pointer;pointer-events:auto;z-index:1001}
-        #flashlight-btn.active{background:#FFC107;border-color:#FFC107;color:#111}
-        #flashlight-btn svg{width:26px;height:26px}
-    </style>
+    <link rel="stylesheet" href="css/style.css?v=2.1" />
   </head>
   <body>
     <div id="ui-container">
-      <button id="flashlight-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 6c0 2-2 2-2 4v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10c0-2-2-2-2-4V2h12z"/>
-          <line x1="6" y1="6" x2="18" y2="6"/>
-        </svg>
-      </button>
+      <button id="flashlight-btn" title="Włącz/Wyłącz latarkę">...</button>
+      <div id="marker-buttons-container"></div>
+
       <div id="info-panel" class="hidden">
-        <div class="panel-header"><div class="drag-pill"></div><h2 id="info-title">Nazwa elementu</h2></div>
-        <div class="panel-content"><p id="info-desc">Szczegółowy opis...</p><button id="close-btn">Zrozumiałem</button></div>
+        <div class="panel-header">
+          <div class="drag-pill"></div>
+          <h2 id="info-title">Nazwa elementu</h2>
+        </div>
+        <div class="panel-content">
+          <p id="info-desc">Szczegółowy opis elementu pojawi się tutaj...</p>
+          <button id="close-btn">Zrozumiałem</button>
+        </div>
       </div>
     </div>
 
-    <a-scene mindar-image="imageTargetSrc: assets/oslona.mind; autoStart: true; uiLoading: yes; uiScanning: yes;" vr-mode-ui="enabled: false">
+    <a-scene
+      mindar-image="imageTargetSrc: assets/oslona.mind;"
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
+      <a-light type="ambient" intensity="1"></a-light>
+      <a-light type="directional" intensity="1" position="1 1 1"></a-light>
+
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
       <a-entity id="engine-anchor" mindar-image-target="targetIndex: 0"></a-entity>
     </a-scene>
 
-    <script>
-        (function(){
-            var vConsole = new VConsole();
-            console.log("=== START ===");
-            
-            var anchor = document.getElementById('engine-anchor');
-            var infoPanel = document.getElementById('info-panel');
-            var infoTitle = document.getElementById('info-title');
-            var infoDesc = document.getElementById('info-desc');
-            var closeBtn = document.getElementById('close-btn');
-            var flashlightBtn = document.getElementById('flashlight-btn');
-            
-            console.log("Anchor:", anchor ? "OK" : "BRAK");
-            
-            var carsData = {
-                "Mazda_3_1.6_2010": {
-                    "name": "Mazda 3 1.6 MZR",
-                    "markers": [
-                        {"label":"Wlew oleju","color":"#FFC107","position":"0.3 0.1 0","description":"Dolewaj tylko na zimnym silniku!"},
-                        {"label":"Bagnet oleju","color":"#FF9800","position":"0.4 0.1 0.1","description":"Sprawdzaj poziom oleju."},
-                        {"label":"Płyn spryskiwaczy","color":"#2196F3","position":"-0.5 -0.2 0.1","description":"Zimowy płyn do -20°C."},
-                        {"label":"Płyn chłodniczy","color":"#4CAF50","position":"0.1 0.3 0.2","description":"Sprawdzaj na zimnym silniku."}
-                    ]
-                }
-            };
-            
-            console.log("Dane:", Object.keys(carsData)[0]);
-            
-            var markers = [];
-            
-            function clearMarkers(){
-                markers.forEach(m=>{if(m.parentNode)m.parentNode.removeChild(m);});
-                markers=[];
-            }
-            
-            function createMarkers(){
-                clearMarkers();
-                var data = carsData["Mazda_3_1.6_2010"];
-                console.log("Tworzę", data.markers.length, "markerów");
-                data.markers.forEach(function(m){
-                    var hitbox = document.createElement('a-entity');
-                    hitbox.setAttribute('geometry','primitive: sphere; radius: 0.25');
-                    hitbox.setAttribute('material','color: red; transparent: true; opacity: 0.01');
-                    hitbox.setAttribute('position',m.position);
-                    hitbox.setAttribute('class','clickable');
-                    var cone = document.createElement('a-cone');
-                    cone.setAttribute('radius-bottom','0.04');
-                    cone.setAttribute('radius-top','0');
-                    cone.setAttribute('height','0.12');
-                    cone.setAttribute('color',m.color);
-                    cone.setAttribute('rotation','180 0 0');
-                    cone.setAttribute('position','0 0.06 0');
-                    hitbox.appendChild(cone);
-                    hitbox.addEventListener('click',function(e){
-                        e.preventDefault();
-                        infoTitle.innerText = m.label;
-                        infoDesc.innerText = m.description;
-                        infoPanel.classList.remove('hidden');
-                        infoPanel.classList.add('visible');
-                    });
-                    hitbox.addEventListener('touchstart',function(e){
-                        e.preventDefault();
-                        infoTitle.innerText = m.label;
-                        infoDesc.innerText = m.description;
-                        infoPanel.classList.remove('hidden');
-                        infoPanel.classList.add('visible');
-                    });
-                    anchor.appendChild(hitbox);
-                    markers.push(hitbox);
-                });
-                console.log("Gotowe, markerów:", markers.length);
-            }
-            
-            var scene = document.querySelector('a-scene');
-            if(scene){
-                scene.addEventListener('mindar-image-target-found', function(){
-                    console.log("🎯 TARGET WYKRYTY!!!");
-                    createMarkers();
-                });
-                scene.addEventListener('mindar-image-target-lost', function(){
-                    console.log("👋 TARGET UTRACONY");
-                    clearMarkers();
-                });
-                console.log("Nasłuch dodany, czekam na target...");
-            } else {
-                console.error("SCENY NIE MA!");
-            }
-            
-            closeBtn.addEventListener('click',function(){
-                infoPanel.classList.remove('visible');
-                infoPanel.classList.add('hidden');
-            });
-            
-            var torch=false;
-            flashlightBtn.addEventListener('click',async function(){
-                try{
-                    var video=document.querySelector('video');
-                    if(!video||!video.srcObject){alert("Kamera nie gotowa");return;}
-                    var track=video.srcObject.getVideoTracks()[0];
-                    var caps=track.getCapabilities();
-                    if(!caps||!caps.torch){alert("Brak latarki");return;}
-                    torch=!torch;
-                    await track.applyConstraints({advanced:[{torch:torch}]});
-                    if(torch)flashlightBtn.classList.add('active');
-                    else flashlightBtn.classList.remove('active');
-                }catch(e){console.error(e);}
-            });
-            
-            console.log("=== APLIKACJA GOTOWA, POKAŻ TARGET ===");
-        })();
-    </script>
+    <script src="js/app.js?v=2.1"></script>
   </body>
 </html>
