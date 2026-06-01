@@ -1,4 +1,4 @@
-/* Podstawowy reset, o który prosiłeś */
+/* Podstawowy reset */
 body, html {
     margin: 0;
     padding: 0;
@@ -65,7 +65,7 @@ body, html {
     background-color: #e0a800;
 }
 
-/* Kontener zdejmujący kliknięcia z pustych miejsc ekranu */
+/* Kontener UI */
 #ui-container {
     position: absolute;
     top: 0;
@@ -79,7 +79,7 @@ body, html {
     justify-content: flex-end;
 }
 
-/* Panel dolny (Bottom Sheet) z efektem Glassmorphism */
+/* Panel informacyjny (bottom sheet) */
 #info-panel {
     background: rgba(20, 20, 20, 0.85);
     backdrop-filter: blur(10px);
@@ -102,7 +102,6 @@ body, html {
     transform: translateY(110%);
 }
 
-/* Górna belka panelu */
 .panel-header {
     display: flex;
     flex-direction: column;
@@ -194,7 +193,7 @@ body, html {
     stroke: #111;
 }
 
-/* Przycisk asysty – identyczny styl jak latarka, umieszczony obok */
+/* Przycisk asysty (identyczny styl jak latarka) */
 #assist-mode-btn {
     position: absolute;
     top: 20px;
@@ -234,7 +233,7 @@ body, html {
     stroke: #111;
 }
 
-/* Kontener przycisków markerów */
+/* Przyciski markerów 3D (prawe kółka) */
 #marker-buttons-container {
     position: absolute;
     top: 90px;
@@ -255,15 +254,11 @@ body, html {
     transform: translateX(0);
 }
 
-/* Wygląd pojedynczego kółka do klikania */
 .ui-marker-btn {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     border: 3px solid rgba(255, 255, 255, 0.8);
-    color: #111;
-    font-weight: 900;
-    font-size: 1.2rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -283,7 +278,7 @@ body, html {
     pointer-events: none;
 }
 
-/* Celownik asysty (centralny punkt) */
+/* Celownik statyczny (tylko dekoracja) */
 #center-dot {
     position: fixed;
     top: 50%;
@@ -323,7 +318,7 @@ body, html {
     height: 50px;
 }
 
-/* Znaczniki asysty (pływające etykiety) */
+/* Znaczniki asysty (klikalne) */
 .screen-marker {
     position: fixed;
     background: rgba(0, 0, 0, 0.7);
@@ -333,19 +328,20 @@ body, html {
     font-size: 12px;
     font-weight: bold;
     z-index: 9998;
-    pointer-events: none;
+    pointer-events: auto;
+    cursor: pointer;
     white-space: nowrap;
     border-left: 3px solid #FFC107;
     transition: all 0.1s;
 }
 
-.screen-marker.highlight {
+.screen-marker:active {
+    transform: scale(0.95);
     background: #FFC107;
     color: black;
-    transform: scale(1.1);
 }
 
-/* Przyciemnienie kamery – nakładka aktywna tylko gdy tryb asysty włączony */
+/* Przyciemnienie kamery w trybie asysty */
 #camera-dim-overlay {
     position: fixed;
     top: 0;
@@ -363,10 +359,8 @@ body, html {
     opacity: 1;
 }
 
-/* --- USTAWIENIA DLA ORIENTACJI POZIOMEJ (LANDSCAPE) – SCALONE --- */
+/* --- USTAWIENIA DLA ORIENTACJI POZIOMEJ (LANDSCAPE) --- */
 @media screen and (orientation: landscape) {
-    
-    /* Jednolite wymiary obu przycisków górnych */
     #flashlight-btn,
     #assist-mode-btn {
         width: 45px;
@@ -385,7 +379,6 @@ body, html {
         right: 80px;
     }
 
-    /* Przyciski markerów – poziomo, niżej */
     #marker-buttons-container {
         top: 20px;
         right: 140px;
@@ -393,7 +386,6 @@ body, html {
         gap: 10px;
     }
 
-    /* Panel informacyjny – wysuwany z prawej strony */
     #info-panel {
         width: 320px;
         max-width: 45vw;
@@ -406,7 +398,6 @@ body, html {
         padding: 15px 15px 20px 15px;
     }
 
-    /* Mniejsze teksty w panelu */
     #info-title {
         font-size: 1.1rem;
         margin-bottom: 10px;
