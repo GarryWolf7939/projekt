@@ -8,7 +8,7 @@ body, html {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* --- EKRAN POWITALNY (SPLASH SCREEN) --- */
+/* --- EKRAN POWITALNY --- */
 #splash-screen {
     position: fixed;
     top: 0;
@@ -79,7 +79,7 @@ body, html {
     justify-content: flex-end;
 }
 
-/* Panel informacyjny (bottom sheet) */
+/* Panel informacyjny */
 #info-panel {
     background: rgba(20, 20, 20, 0.85);
     backdrop-filter: blur(10px);
@@ -193,7 +193,7 @@ body, html {
     stroke: #111;
 }
 
-/* Przycisk asysty (identyczny styl jak latarka) */
+/* Przycisk asysty */
 #assist-mode-btn {
     position: absolute;
     top: 20px;
@@ -233,7 +233,7 @@ body, html {
     stroke: #111;
 }
 
-/* Przyciski markerów 3D (prawe kółka) */
+/* Przyciski markerów 3D */
 #marker-buttons-container {
     position: absolute;
     top: 90px;
@@ -278,7 +278,7 @@ body, html {
     pointer-events: none;
 }
 
-/* Celownik statyczny (tylko dekoracja) */
+/* Celownik statyczny */
 #center-dot {
     position: fixed;
     top: 50%;
@@ -341,7 +341,7 @@ body, html {
     color: black;
 }
 
-/* Przyciemnienie kamery w trybie asysty */
+/* Przyciemnienie kamery */
 #camera-dim-overlay {
     position: fixed;
     top: 0;
@@ -359,7 +359,14 @@ body, html {
     opacity: 1;
 }
 
-/* --- USTAWIENIA DLA ORIENTACJI POZIOMEJ (LANDSCAPE) --- */
+/* --- UKRYCIE ANIMACJI SKANOWANIA MINDAR (kółko, napis) GDY TRYB ASYSTY JEST AKTYWNY --- */
+body.assist-mode-active .mindar-ui-loading,
+body.assist-mode-active .mindar-ui-progress,
+body.assist-mode-active .mindar-ui-overlay {
+    display: none !important;
+}
+
+/* --- ORIENTACJA POZIOMA (LANDSCAPE) --- */
 @media screen and (orientation: landscape) {
     #flashlight-btn,
     #assist-mode-btn {

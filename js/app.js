@@ -180,10 +180,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }, { passive: true });
     }
 
-    // ==================== TRYB ASYSTY (znaczniki klikalne, celownik statyczny) ====================
+    // ==================== TRYB ASYSTY (znaczniki klikalne, celownik statyczny, ukrycie animacji MindAR) ====================
     let assistModeActive = false;
 
-    // Pozycje znaczników na ekranie (w procentach)
     const screenPositions = {
         oil: { x: 25, y: 40, name: "🛢️ Wlew oleju" },
         oil_dipstick: { x: 35, y: 50, name: "🔧 Bagnet oleju" },
@@ -202,7 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
             el.style.left = `${pos.x}%`;
             el.style.top = `${pos.y}%`;
             el.style.transform = 'translate(-50%, -50%)';
-            // Kliknięcie w znacznik otwiera panel z opisem
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const markerData = carData.markers.find(m => m.id === id);
@@ -222,12 +220,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (markersOnScreen) markersOnScreen.innerHTML = "";
     }
 
-    // Obsługa przycisku asysty
+    // Obsługa przycisku asysty – przełącza również klasę na body, która ukrywa elementy UI MindAR
     if (assistModeBtn) {
         assistModeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             assistModeActive = !assistModeActive;
+            // Dodaj/usuń klasę na body – wtedy CSS ukryje animację skanowania MindAR
+            document.body.classList.toggle('assist-mode-active', assistModeActive);
             if (assistModeActive) {
                 assistModeBtn.classList.add('active');
                 if (centerDot) centerDot.classList.add('visible');
