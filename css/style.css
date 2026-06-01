@@ -15,14 +15,14 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #111111; /* Ciemne tło identyczne z panelem */
+    background-color: #111111;
     z-index: 9999;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     color: #ffffff;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Taka sama czcionka jak w UI */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
 }
 
@@ -33,8 +33,8 @@ body, html {
 }
 
 #splash-title {
-    font-size: 2.5rem; /* Większy, konkretny napis */
-    font-weight: 800;  /* Maksymalne pogrubienie (Zboldowany) */
+    font-size: 2.5rem;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 2px;
     text-align: center;
@@ -42,7 +42,6 @@ body, html {
     line-height: 1.2;
 }
 
-/* Żółty akcent dla AR */
 #splash-title .highlight {
     color: #FFC107;
 }
@@ -73,31 +72,28 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Przepuszcza kliknięcia w puste tło do kamery AR */
+    pointer-events: none;
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Wypycha panel na sam dół */
+    justify-content: flex-end;
 }
 
 /* Panel dolny (Bottom Sheet) z efektem Glassmorphism */
 #info-panel {
     background: rgba(20, 20, 20, 0.85);
-    backdrop-filter: blur(10px); /* Magiczne rozmycie tła kamery */
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: white;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     padding: 20px 20px 30px 20px;
-    pointer-events: auto; /* Łapie kliknięcia w samym menu */
-    
-    /* Animacja wyjazdu z dołu */
+    pointer-events: auto;
     transform: translateY(110%);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6);
 }
 
-/* Klasy sterujące widocznością panelu */
 #info-panel.visible {
     transform: translateY(0);
 }
@@ -116,7 +112,6 @@ body, html {
     margin-bottom: 15px;
 }
 
-/* Pigułka na samej górze menu (element estetyczny) */
 .drag-pill {
     width: 50px;
     height: 5px;
@@ -129,7 +124,7 @@ body, html {
     margin: 0;
     font-size: 1.4rem;
     text-align: center;
-    color: #FFC107; /* Żółty akcent mechaniczny */
+    color: #FFC107;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -141,7 +136,6 @@ body, html {
     color: #E0E0E0;
 }
 
-/* Przycisk akcji */
 #close-btn {
     width: 100%;
     padding: 14px;
@@ -159,13 +153,15 @@ body, html {
     background: #e0a800;
     transform: scale(0.98);
 }
+
+/* Latarka */
 #flashlight-btn {
     position: absolute;
     top: 20px;
     right: 20px;
     width: 55px;
     height: 55px;
-    border-radius: 50%; /* Robi idealne koło */
+    border-radius: 50%;
     background: rgba(20, 20, 20, 0.7);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
@@ -187,7 +183,6 @@ body, html {
     transition: stroke 0.3s ease;
 }
 
-/* Stan, gdy latarka jest włączona */
 #flashlight-btn.active {
     background: #FFC107;
     border-color: #FFC107;
@@ -196,117 +191,14 @@ body, html {
 }
 
 #flashlight-btn.active svg {
-    stroke: #111; /* Zmiana koloru ikony na ciemny */
+    stroke: #111;
 }
 
-/* --- Zaktualizowany styl kontenera przycisków --- */
-#marker-buttons-container {
-    position: absolute;
-    top: 90px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    z-index: 1001;
-
-    /* Domyślnie ukryte i nieklikalne */
-    opacity: 0;
-    pointer-events: none;
-    
-    /* Gładkie pojawianie się */
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateX(20px); /* Lekkie odsunięcie w prawo */
-}
-
-/* Klasa włączana przez JS po wykryciu silnika */
-#marker-buttons-container.visible {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(0); /* Wraca na miejsce */
-}
-
-/* Wygląd pojedynczego kółka do klikania */
-.ui-marker-btn {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.8);
-    color: #111;
-    font-weight: 900;
-    font-size: 1.2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.ui-marker-btn:active {
-    transform: scale(0.85); /* Fajny efekt wciśnięcia palcem */
-}
-
-/* Skalowanie obrazków PNG w przyciskach */
-.ui-marker-btn img {
-    width: 60%;
-    height: 60%;
-    object-fit: contain;
-    pointer-events: none; /* Żeby kliknięcie łapało cały przycisk, a nie sam obrazek */
-}
-
-/* --- USTAWIENIA DLA ORIENTACJI POZIOMEJ (LANDSCAPE) --- */
-@media screen and (orientation: landscape) {
-    
-    /* 1. PRZYCISKI - Zostają poziomo na górze */
-    #marker-buttons-container {
-        top: 20px;
-        right: 80px; 
-        flex-direction: row; 
-        gap: 10px;
-    }
-
-    /* 2. PANEL INFORMACYJNY - Klasyczny wyjazd z dołu, ale tylko po prawej stronie! */
-    #info-panel {
-        width: 320px; /* Zwężamy go do zgrabnego paska */
-        max-width: 45vw; /* Zabezpieczenie dla mniejszych ekranów */
-        
-        /* Magia Flexboxa: zamiast pchać go po osiach, po prostu każemy mu stanąć po prawej */
-        align-self: flex-end; 
-        margin-right: 20px; /* Lekko odsuwamy od prawej ramki telefonu */
-        
-        /* Przywracamy domyślne zaokrąglenia, bo wracamy do wyjazdu z dołu */
-        border-top-left-radius: 20px;
-        border-top-right-radius: 20px;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-        
-        /* Lekko zmniejszamy odstępy w środku, żeby był kompaktowy */
-        padding: 15px 15px 20px 15px;
-    }
-
-    /* 3. MNIEJSZE TEKSTY W POZIOMIE */
-    #info-title {
-        font-size: 1.1rem;
-        margin-bottom: 10px;
-    }
-
-    .panel-content p {
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-    }
-
-    #close-btn {
-        padding: 10px;
-        font-size: 0.95rem;
-    }
-}
-/* ==================== DODATKOWE STYLE DLA TRYBU ASYSTY ==================== */
-
-/* Przycisk asysty – identyczny wymiarami i pozycją jak latarka, ale obok */
+/* Przycisk asysty – identyczny styl jak latarka, umieszczony obok */
 #assist-mode-btn {
     position: absolute;
     top: 20px;
-    right: 90px;          /* sąsiaduje z latarką (right:20px) */
+    right: 90px;
     width: 55px;
     height: 55px;
     border-radius: 50%;
@@ -340,6 +232,55 @@ body, html {
 
 #assist-mode-btn.active svg {
     stroke: #111;
+}
+
+/* Kontener przycisków markerów */
+#marker-buttons-container {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1001;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(20px);
+}
+
+#marker-buttons-container.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+
+/* Wygląd pojedynczego kółka do klikania */
+.ui-marker-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    color: #111;
+    font-weight: 900;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ui-marker-btn:active {
+    transform: scale(0.85);
+}
+
+.ui-marker-btn img {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    pointer-events: none;
 }
 
 /* Celownik asysty (centralny punkt) */
@@ -404,16 +345,80 @@ body, html {
     transform: scale(1.1);
 }
 
-/* Dostosowanie przycisku asysty w orientacji poziomej */
+/* Przyciemnienie kamery – nakładka aktywna tylko gdy tryb asysty włączony */
+#camera-dim-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+    z-index: 9000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#camera-dim-overlay.active {
+    opacity: 1;
+}
+
+/* --- USTAWIENIA DLA ORIENTACJI POZIOMEJ (LANDSCAPE) – SCALONE --- */
 @media screen and (orientation: landscape) {
+    
+    /* Jednolite wymiary obu przycisków górnych */
+    #flashlight-btn,
     #assist-mode-btn {
-        top: 20px;
-        right: 80px;
         width: 45px;
         height: 45px;
+        top: 20px;
     }
+    #flashlight-btn svg,
     #assist-mode-btn svg {
         width: 22px;
         height: 22px;
+    }
+    #flashlight-btn {
+        right: 20px;
+    }
+    #assist-mode-btn {
+        right: 80px;
+    }
+
+    /* Przyciski markerów – poziomo, niżej */
+    #marker-buttons-container {
+        top: 20px;
+        right: 140px;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    /* Panel informacyjny – wysuwany z prawej strony */
+    #info-panel {
+        width: 320px;
+        max-width: 45vw;
+        align-self: flex-end;
+        margin-right: 20px;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        padding: 15px 15px 20px 15px;
+    }
+
+    /* Mniejsze teksty w panelu */
+    #info-title {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .panel-content p {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    #close-btn {
+        padding: 10px;
+        font-size: 0.95rem;
     }
 }

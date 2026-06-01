@@ -9,8 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const splashScreen = document.getElementById('splash-screen');
     const startBtn = document.getElementById('start-btn');
     const sceneEl = document.querySelector('a-scene');
+    const assistModeBtn = document.getElementById('assist-mode-btn');
+    const markersOnScreen = document.getElementById('markers-on-screen');
+    const centerDot = document.getElementById('center-dot');
+    const cameraDimOverlay = document.getElementById('camera-dim-overlay');
 
-    // --- LOGIKA EKRANU POWITALNEGO I PAMIĘCI SESJI (SMART FIX) ---
+    // --- LOGIKA EKRANU POWITALNEGO I PAMIĘCI SESJI ---
     if (sessionStorage.getItem('arGhostStarted') === 'true') {
         splashScreen.classList.add('hidden');
         setTimeout(() => {
@@ -24,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sceneEl.systems["mindar-image-system"].start();
     });
 
-    // Baza danych
+    // Baza danych markerów
     const carData = {
         markers: [
             { 
@@ -62,24 +66,22 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
+    // Generowanie kulek 3D i przycisków markerów
     carData.markers.forEach((marker) => {
-        // Kulki 3D
+        // Kulka 3D
         const wrapper = document.createElement('a-entity');
         wrapper.setAttribute('position', marker.position); 
-
         const visualSphere = document.createElement('a-sphere');
         visualSphere.setAttribute('radius', '0.02'); 
         visualSphere.setAttribute('color', marker.color);
         visualSphere.setAttribute('position', '0 0 0'); 
-        
         wrapper.appendChild(visualSphere);
         anchor.appendChild(wrapper);
 
-        // Przyciski UI
+        // Przycisk UI
         const uiButton = document.createElement('div');
         uiButton.className = 'ui-marker-btn';
         uiButton.style.backgroundColor = marker.color; 
-        
         const imgIcon = document.createElement('img');
         imgIcon.src = marker.icon;
         uiButton.appendChild(imgIcon);
@@ -87,14 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
         uiButton.addEventListener('click', (evt) => {
             evt.preventDefault();
             evt.stopPropagation();
-            
             const showNewContent = () => {
                 infoTitle.innerText = marker.label;
                 infoDesc.innerText = marker.desc;
                 infoPanel.classList.remove('hidden');
                 infoPanel.classList.add('visible');
             };
-
             if (infoPanel.classList.contains('visible')) {
                 infoPanel.classList.remove('visible');
                 infoPanel.classList.add('hidden');
@@ -107,12 +107,14 @@ document.addEventListener("DOMContentLoaded", () => {
         buttonsContainer.appendChild(uiButton);
     });
 
+    // Zamknięcie panelu przez przycisk
     closeBtn.addEventListener('click', (event) => {
         event.preventDefault();
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
 
+    // Zamknięcie panelu po kliknięciu poza nim (ale nie na przyciski asysty/latarki)
     window.addEventListener('click', (e) => {
         if (e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn' && !e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn')) {
             infoPanel.classList.remove('visible');
@@ -120,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // AR: pojawienie/zniknięcie markera
     anchor.addEventListener("targetFound", () => {
         buttonsContainer.classList.add('visible');
     });
@@ -146,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const track = stream.getVideoTracks()[0];
                 const capabilities = track.getCapabilities && track.getCapabilities();
                 if (!capabilities || !capabilities.torch) {
-                    alert("Twoja przeglądarka blokuje latarkę z poziomu strony WWW.");
+                    alert("Twoja przeglądarka nie obsługuje latarki.");
                     return;
                 }
                 isTorchOn = !isTorchOn;
@@ -164,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 500);
     });
 
-    // Obsługa gestu swipe w dół
+    // Obsługa gestu swipe w dół na panelu
     let startY = 0;
     if (infoPanel) {
         infoPanel.addEventListener('touchstart', (e) => {
@@ -181,14 +184,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==================== TRYB ASYSTY ====================
-    const assistModeBtn = document.getElementById('assist-mode-btn');
-    const markersOnScreen = document.getElementById('markers-on-screen');
-    const centerDot = document.getElementById('center-dot');
-    
     let assistModeActive = false;
     let hitDetectionInterval = null;
 
-    // Pozycje znaczników na ekranie (dostosuj % do swojego silnika)
+    // Pozycje znaczników na ekranie (dostosuj %)
     const screenPositions = {
         oil: { x: 25, y: 40, name: "🛢️ Wlew oleju" },
         oil_dipstick: { x: 35, y: 50, name: "🔧 Bagnet oleju" },
@@ -199,7 +198,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function showScreenMarkers() {
         if (!markersOnScreen) return;
         markersOnScreen.innerHTML = "";
-        
         Object.entries(screenPositions).forEach(([id, pos]) => {
             const el = document.createElement('div');
             el.className = 'screen-marker';
@@ -210,7 +208,6 @@ document.addEventListener("DOMContentLoaded", () => {
             el.style.transform = 'translate(-50%, -50%)';
             markersOnScreen.appendChild(el);
         });
-        
         startHitDetection();
     }
 
@@ -224,23 +221,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function startHitDetection() {
         if (hitDetectionInterval) clearInterval(hitDetectionInterval);
-        
         hitDetectionInterval = setInterval(() => {
             if (!assistModeActive) return;
-            
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
-            
             document.querySelectorAll('.screen-marker').forEach(marker => {
                 const rect = marker.getBoundingClientRect();
                 const markerX = (rect.left + rect.right) / 2;
                 const markerY = (rect.top + rect.bottom) / 2;
                 const distance = Math.hypot(markerX - centerX, markerY - centerY);
-                
                 if (distance < 60) {
                     if (!marker.classList.contains('highlight')) {
                         marker.classList.add('highlight');
-                        
                         const id = marker.id.replace('marker-', '');
                         const markerData = carData.markers.find(m => m.id === id);
                         if (markerData) {
@@ -258,30 +250,29 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
     }
 
-    // Obsługa przycisku asysty
+    // Obsługa przycisku asysty – włącza/wyłącza tryb, a także przyciemnienie
     if (assistModeBtn) {
         assistModeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            
             assistModeActive = !assistModeActive;
-            
             if (assistModeActive) {
                 assistModeBtn.classList.add('active');
                 if (centerDot) centerDot.classList.add('visible');
+                if (cameraDimOverlay) cameraDimOverlay.classList.add('active');
                 if (buttonsContainer && buttonsContainer.classList.contains('visible')) {
                     showScreenMarkers();
                 }
             } else {
                 assistModeBtn.classList.remove('active');
                 if (centerDot) centerDot.classList.remove('visible');
+                if (cameraDimOverlay) cameraDimOverlay.classList.remove('active');
                 hideScreenMarkers();
             }
         });
     }
 
-    // Modyfikacja targetFound/targetLost dla asysty
-    const originalTargetFound = anchor.getAttribute('targetfound');
+    // Integracja z AR: pokazanie znaczników po znalezieniu targetu (jeśli tryb asysty aktywny)
     anchor.addEventListener("targetFound", () => {
         buttonsContainer.classList.add('visible');
         if (assistModeActive) {
@@ -295,6 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
         infoPanel.classList.add('hidden');
         hideScreenMarkers();
         if (centerDot) centerDot.classList.remove('visible');
+        if (cameraDimOverlay) cameraDimOverlay.classList.remove('active');
         if (assistModeBtn) assistModeBtn.classList.remove('active');
         assistModeActive = false;
     });
