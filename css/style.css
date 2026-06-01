@@ -278,7 +278,7 @@ body, html {
     pointer-events: none;
 }
 
-/* Nakładka asysty – obrazek PNG na cały ekran */
+/* Nakładka asysty – obrazek PNG na cały ekran, z przezroczystością */
 #assist-overlay {
     position: fixed;
     top: 0;
@@ -298,7 +298,8 @@ body, html {
 #assist-overlay img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* dopasowuje obrazek, zachowując proporcje */
+    object-fit: contain;    /* dopasowuje obrazek, zachowując proporcje */
+    opacity: 0.7;           /* przezroczystość – widać kamerę pod spodem */
 }
 
 /* --- ORIENTACJA POZIOMA (LANDSCAPE) --- */
