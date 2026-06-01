@@ -59,18 +59,24 @@
       </div>
     </div>
 
-    <!-- SCENA AR -->
+    <!-- SCENA AR – zagnieżdżona zgodnie z Twoją strukturą -->
     <a-scene
-      mindar-image="imageTargetSrc: assets/oslona.mind;"
+      mindar-image="imageTargetSrc: assets/oslonav2.mind;"
       color-space="sRGB"
       renderer="colorManagement: true, physicallyCorrectLights"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
     >
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-      <a-entity id="engine-anchor" mindar-image-target="targetIndex: 0"></a-entity>
+
+      <a-entity
+        id="engine-anchor"
+        mindar-image-target="targetIndex: 0"
+      ></a-entity>
+
+      <!-- zagnieżdżona druga scena (tak jak chciałeś) -->
       <a-scene
-        mindar-image="imageTargetSrc: assets/oslona.mind; autoStart: false;"
+        mindar-image="imageTargetSrc: assets/oslonav2.mind; autoStart: false;"
         color-space="sRGB"
         renderer="colorManagement: true, physicallyCorrectLights"
         vr-mode-ui="enabled: false"

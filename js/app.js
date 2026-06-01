@@ -12,11 +12,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const assistModeBtn = document.getElementById('assist-mode-btn');
     const assistOverlay = document.getElementById('assist-overlay');
 
-    // Stan
+    // --- STAN ASYSTY ---
     let isTargetFound = false;
     let assistModeActive = false;
 
-    // Aktualizacja widoczności przycisków markerów
+    // Funkcja aktualizująca widoczność przycisków markerów (zależna od targetu lub asysty)
     function updateMarkersVisibility() {
         if (!buttonsContainer) return;
         if (isTargetFound || assistModeActive) {
@@ -26,47 +26,101 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // --- BEZPIECZNE URUCHOMIENIE MINDAR (z drugiego kodu) ---
+    const safeStartAR = () => {
+        const startSystem = () => {
+            if (sceneEl.systems && sceneEl.systems["mindar-image-system"]) {
+                sceneEl.systems["mindar-image-system"].start();
+            } else {
+                console.error("System MindAR nie został jeszcze zainicjalizowany!");
+            }
+        };
+        if (sceneEl.hasLoaded) {
+            startSystem();
+        } else {
+            sceneEl.addEventListener("loaded", startSystem);
+        }
+    };
+
     // --- LOGIKA EKRANU POWITALNEGO ---
     if (sessionStorage.getItem('arGhostStarted') === 'true') {
         splashScreen.classList.add('hidden');
-        setTimeout(() => {
-            sceneEl.systems["mindar-image-system"].start();
-        }, 100);
+        safeStartAR();
     }
 
     startBtn.addEventListener('click', () => {
         sessionStorage.setItem('arGhostStarted', 'true');
         splashScreen.classList.add('hidden');
-        sceneEl.systems["mindar-image-system"].start();
+        safeStartAR();
     });
 
-    // Baza danych markerów (bez zmian)
+    // --- BAZA DANYCH (z drugiego kodu – nowe pozycje, dodatkowy marker aq) ---
     const carData = {
         markers: [
-            { id: "oil", label: "Wlew oleju", color: "#ffee00", position: "-0.4 0.1 0.1", desc: "Pamiętaj, aby poziom oleju był zawsze między MIN a MAX. Używaj oleju zalecanego przez producenta samochodu.", icon: "assets/oil.png" },
-            { id: "oil_dipstick", label: "Bagnet oleju", color: "#f3a702", position: "-0.3 0.07 0.1", desc: "Bagnet służy do sprawdzania poziomu oleju. Pamiętaj aby samochód stał na poziomym terenie oraz silnik był zimny.", icon: "assets/bagnet_oleju.png" },
-            { id: "washer", label: "Płyn spryskiwaczy", color: "#00BFFF", position: "0.5 -0.2 0", desc: "Używaj płynu zimowego (do -20°C). Korek ma zazwyczaj niebieski kolor i symbol szyby.", icon: "assets/washer.png" },
-            { id: "coolant", label: "Płyn chłodniczy", color: "#FF4500", position: "0.1 0.4 0.1", desc: "UWAGA: Układ znajduje się pod ciśnieniem! Otwieraj zbiornik wyrównawczy tylko na całkowicie zimnym silniku.", icon: "assets/coolant.png" }
+            { 
+                id: "oil", 
+                label: "Wlew oleju", 
+                color: "#ffee00", 
+                position: "-0.235 0.07 0.1", 
+                desc: "Pamiętaj, aby poziom oleju był zawsze między MIN a MAX. Używaj oleju zalecanego przez producenta samochodu.",
+                icon: "assets/oil.png" 
+            },
+            { 
+                id: "oil_dipstick", 
+                label: "Bagnet oleju", 
+                color: "#f3a702", 
+                position: "-0.22 0.01 0.1", 
+                desc: "Bagnet służy do sprawdzania poziomu oleju. Pamiętaj, aby samochód stał na poziomym terenie oraz silnik był zimny. Wyciągnij go, wytrzyj, włóż z powrotem i ponownie wyciągnij, aby odczytać poziom.",
+                icon: "assets/bagnet_oleju.png" 
+            },
+            { 
+                id: "washer", 
+                label: "Płyn spryskiwaczy", 
+                color: "#00BFFF", 
+                position: "-0.44 -0.03 0.1", 
+                desc: "Używaj płynu zimowego (do -20°C). Korek ma zazwyczaj niebieski kolor i symbol szyby.",
+                icon: "assets/washer.png"
+            },
+            { 
+                id: "coolant", 
+                label: "Płyn chłodniczy", 
+                color: "#FF4500", 
+                position: "-0.38 0.07 0.1", 
+                desc: "UWAGA: Układ znajduje się pod ciśnieniem! Otwieraj zbiornik wyrównawczy tylko na całkowicie zimnym silniku.",
+                icon: "assets/coolant.png"
+            },
+            { 
+                id: "aq", 
+                label: "Akumulator", 
+                color: "#8f8c8b", 
+                position: "0.24 0.08 -0.3", 
+                desc: "W razie awarii, zdejmij pokrywę akumulatora oraz wypnij klemy, najpierw ujemną (czarna), potem dodatnią (czerwona).",
+                icon: "assets/aq.png"
+            }
         ]
     };
 
-    // Generowanie kulek 3D i przycisków markerów (prawe kółka)
+    // --- GENEROWANIE KULEK 3D I PRZYCISKÓW MARKERÓW ---
     carData.markers.forEach((marker) => {
+        // Kulka 3D (promień 0.015 – zgodny z drugim kodem)
         const wrapper = document.createElement('a-entity');
-        wrapper.setAttribute('position', marker.position);
-        const sphere = document.createElement('a-sphere');
-        sphere.setAttribute('radius', '0.02');
-        sphere.setAttribute('color', marker.color);
-        wrapper.appendChild(sphere);
+        wrapper.setAttribute('position', marker.position); 
+        const visualSphere = document.createElement('a-sphere');
+        visualSphere.setAttribute('radius', '0.015'); 
+        visualSphere.setAttribute('color', marker.color);
+        visualSphere.setAttribute('position', '0 0 0'); 
+        wrapper.appendChild(visualSphere);
         anchor.appendChild(wrapper);
 
-        const btn = document.createElement('div');
-        btn.className = 'ui-marker-btn';
-        btn.style.backgroundColor = marker.color;
-        const img = document.createElement('img');
-        img.src = marker.icon;
-        btn.appendChild(img);
-        btn.addEventListener('click', (evt) => {
+        // Przycisk UI (prawe kółko)
+        const uiButton = document.createElement('div');
+        uiButton.className = 'ui-marker-btn';
+        uiButton.style.backgroundColor = marker.color; 
+        const imgIcon = document.createElement('img');
+        imgIcon.src = marker.icon;
+        uiButton.appendChild(imgIcon);
+
+        uiButton.addEventListener('click', (evt) => {
             evt.preventDefault();
             evt.stopPropagation();
             const showNewContent = () => {
@@ -83,24 +137,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 showNewContent();
             }
         });
-        buttonsContainer.appendChild(btn);
+        buttonsContainer.appendChild(uiButton);
     });
 
-    // Zamknięcie panelu
-    closeBtn.addEventListener('click', () => {
+    // --- ZAMYKANIE PANELU ---
+    closeBtn.addEventListener('click', (event) => {
+        event.preventDefault();
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
 
-    // Kliknięcie poza panelem
     window.addEventListener('click', (e) => {
-        if (!e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn') && e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn') {
+        if (e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn' && !e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn')) {
             infoPanel.classList.remove('visible');
             infoPanel.classList.add('hidden');
         }
     });
 
-    // Eventy AR
+    // --- EVENTY AR (współpraca z asystą) ---
     anchor.addEventListener("targetFound", () => {
         isTargetFound = true;
         updateMarkersVisibility();
@@ -113,42 +167,46 @@ document.addEventListener("DOMContentLoaded", () => {
         infoPanel.classList.add('hidden');
     });
 
-    // Latarka
+    // --- LATARKA ---
     let isTorchOn = false;
     if (flashlightBtn) {
         flashlightBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             e.stopPropagation();
             try {
-                const video = document.querySelector('video');
-                if (!video || !video.srcObject) {
-                    alert("Kamera się ładuje...");
+                const videoElement = document.querySelector('video');
+                if (!videoElement || !videoElement.srcObject) {
+                    alert("Kamera jeszcze się ładuje!");
                     return;
                 }
-                const track = video.srcObject.getVideoTracks()[0];
-                const caps = track.getCapabilities?.();
-                if (!caps?.torch) {
-                    alert("Twoja przeglądarka nie obsługuje latarki.");
+                const stream = videoElement.srcObject;
+                const track = stream.getVideoTracks()[0];
+                const capabilities = track.getCapabilities && track.getCapabilities();
+                if (!capabilities || !capabilities.torch) {
+                    alert("Twoja przeglądarka blokuje latarkę z poziomu strony WWW.");
                     return;
                 }
                 isTorchOn = !isTorchOn;
                 await track.applyConstraints({ advanced: [{ torch: isTorchOn }] });
                 flashlightBtn.classList.toggle('active', isTorchOn);
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Błąd włączania latarki:", err); }
         });
     }
 
-    // Odświeżanie przy zmianie orientacji
+    // --- ORIENTACJA I SWIPE (z drugiego kodu, ale bez duplikacji) ---
     window.addEventListener("orientationchange", () => {
-        setTimeout(() => location.reload(), 500);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
     });
 
-    // Swipe w dół na panelu
     let startY = 0;
     if (infoPanel) {
-        infoPanel.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+        infoPanel.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        }, { passive: true });
         infoPanel.addEventListener('touchend', (e) => {
-            const endY = e.changedTouches[0].clientY;
+            let endY = e.changedTouches[0].clientY;
             if (endY > startY + 50) {
                 infoPanel.classList.remove('visible');
                 infoPanel.classList.add('hidden');
@@ -156,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, { passive: true });
     }
 
-    // ==================== TRYB ASYSTY ====================
+    // ==================== TRYB ASYSTY (z pierwszego kodu) ====================
     if (assistModeBtn && assistOverlay) {
         assistModeBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -164,12 +222,11 @@ document.addEventListener("DOMContentLoaded", () => {
             assistModeActive = !assistModeActive;
             if (assistModeActive) {
                 assistModeBtn.classList.add('active');
-                assistOverlay.classList.add('active');  // obrazek staje się widoczny
+                assistOverlay.classList.add('active');
             } else {
                 assistModeBtn.classList.remove('active');
                 assistOverlay.classList.remove('active');
             }
-            // Przyciski markerów pojawiają się lub znikają razem z asystą (o ile target nie jest wykryty)
             updateMarkersVisibility();
         });
     }
