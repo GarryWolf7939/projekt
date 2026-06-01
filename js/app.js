@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // Generowanie kulek 3D i przycisków markerów
+    // Generowanie kulek 3D i przycisków markerów (zależne od AR)
     carData.markers.forEach((marker) => {
         // Kulka 3D
         const wrapper = document.createElement('a-entity');
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(visualSphere);
         anchor.appendChild(wrapper);
 
-        // Przycisk UI
+        // Przycisk UI (po prawej stronie)
         const uiButton = document.createElement('div');
         uiButton.className = 'ui-marker-btn';
         uiButton.style.backgroundColor = marker.color; 
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // AR: pojawienie/zniknięcie markera
+    // AR: pojawienie/zniknięcie markera – nie wpływa na asystę
     anchor.addEventListener("targetFound", () => {
         buttonsContainer.classList.add('visible');
     });
@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         buttonsContainer.classList.remove('visible');
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
+        // Nie wyłączamy asysty, nie chowamy znaczników asysty
     });
 
     // Latarka
@@ -183,11 +184,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }, { passive: true });
     }
 
-    // ==================== TRYB ASYSTY ====================
+    // ==================== TRYB ASYSTY (niezależny od markera) ====================
     let assistModeActive = false;
     let hitDetectionInterval = null;
 
-    // Pozycje znaczników na ekranie (dostosuj %)
+    // Pozycje znaczników na ekranie (stałe, procentowo)
     const screenPositions = {
         oil: { x: 25, y: 40, name: "🛢️ Wlew oleju" },
         oil_dipstick: { x: 35, y: 50, name: "🔧 Bagnet oleju" },
@@ -250,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
     }
 
-    // Obsługa przycisku asysty – włącza/wyłącza tryb, a także przyciemnienie
+    // Obsługa przycisku asysty – włącza/wyłącza tryb, niezależnie od markera
     if (assistModeBtn) {
         assistModeBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -260,9 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 assistModeBtn.classList.add('active');
                 if (centerDot) centerDot.classList.add('visible');
                 if (cameraDimOverlay) cameraDimOverlay.classList.add('active');
-                if (buttonsContainer && buttonsContainer.classList.contains('visible')) {
-                    showScreenMarkers();
-                }
+                showScreenMarkers();   // zawsze pokazuje znaczniki, nawet bez targetu
             } else {
                 assistModeBtn.classList.remove('active');
                 if (centerDot) centerDot.classList.remove('visible');
@@ -271,23 +270,4 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
-    // Integracja z AR: pokazanie znaczników po znalezieniu targetu (jeśli tryb asysty aktywny)
-    anchor.addEventListener("targetFound", () => {
-        buttonsContainer.classList.add('visible');
-        if (assistModeActive) {
-            showScreenMarkers();
-        }
-    });
-
-    anchor.addEventListener("targetLost", () => {
-        buttonsContainer.classList.remove('visible');
-        infoPanel.classList.remove('visible');
-        infoPanel.classList.add('hidden');
-        hideScreenMarkers();
-        if (centerDot) centerDot.classList.remove('visible');
-        if (cameraDimOverlay) cameraDimOverlay.classList.remove('active');
-        if (assistModeBtn) assistModeBtn.classList.remove('active');
-        assistModeActive = false;
-    });
 });
