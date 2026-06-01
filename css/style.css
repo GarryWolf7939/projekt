@@ -65,7 +65,7 @@ body, html {
     background-color: #e0a800;
 }
 
-/* Kontener UI */
+/* Kontener UI – przepuszcza kliknięcia */
 #ui-container {
     position: absolute;
     top: 0;
@@ -193,7 +193,7 @@ body, html {
     stroke: #111;
 }
 
-/* Przycisk asysty */
+/* Przycisk trybu asysty (celownik) */
 #assist-mode-btn {
     position: absolute;
     top: 20px;
@@ -233,7 +233,7 @@ body, html {
     stroke: #111;
 }
 
-/* Przyciski markerów 3D */
+/* Kontener przycisków markerów (informacje o elementach) */
 #marker-buttons-container {
     position: absolute;
     top: 90px;
@@ -254,6 +254,7 @@ body, html {
     transform: translateX(0);
 }
 
+/* Pojedynczy przycisk markera */
 .ui-marker-btn {
     width: 50px;
     height: 50px;
@@ -278,7 +279,7 @@ body, html {
     pointer-events: none;
 }
 
-/* Nakładka asysty – obrazek PNG na cały ekran, z przezroczystością */
+/* Nakładka asysty – obrazek PNG na cały ekran (domyślnie ukryty) */
 #assist-overlay {
     position: fixed;
     top: 0;
@@ -287,22 +288,24 @@ body, html {
     height: 100%;
     z-index: 10000;
     pointer-events: none;
+    display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
 #assist-overlay.active {
+    display: block;
     opacity: 1;
 }
 
 #assist-overlay img {
     width: 100%;
     height: 100%;
-    object-fit: contain;    /* dopasowuje obrazek, zachowując proporcje */
-    opacity: 0.7;           /* przezroczystość – widać kamerę pod spodem */
+    object-fit: contain;
+    opacity: 0.7;  /* półprzezroczystość – widać kamerę pod spodem */
 }
 
-/* --- ORIENTACJA POZIOMA (LANDSCAPE) --- */
+/* --- USTAWIENIA DLA ORIENTACJI POZIOMEJ (LANDSCAPE) --- */
 @media screen and (orientation: landscape) {
     #flashlight-btn,
     #assist-mode-btn {

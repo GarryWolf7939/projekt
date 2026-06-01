@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let isTargetFound = false;
     let assistModeActive = false;
 
-    // Funkcja aktualizująca widoczność przycisków markerów (zależna od targetu LUB asysty)
+    // Aktualizacja widoczności przycisków markerów
     function updateMarkersVisibility() {
         if (!buttonsContainer) return;
         if (isTargetFound || assistModeActive) {
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sceneEl.systems["mindar-image-system"].start();
     });
 
-    // Baza danych markerów
+    // Baza danych markerów (bez zmian)
     const carData = {
         markers: [
             { id: "oil", label: "Wlew oleju", color: "#ffee00", position: "-0.4 0.1 0.1", desc: "Pamiętaj, aby poziom oleju był zawsze między MIN a MAX. Używaj oleju zalecanego przez producenta samochodu.", icon: "assets/oil.png" },
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // Generowanie kulek 3D i przycisków markerów
+    // Generowanie kulek 3D i przycisków markerów (prawe kółka)
     carData.markers.forEach((marker) => {
         const wrapper = document.createElement('a-entity');
         wrapper.setAttribute('position', marker.position);
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Eventy AR – aktualizacja stanu targetu
+    // Eventy AR
     anchor.addEventListener("targetFound", () => {
         isTargetFound = true;
         updateMarkersVisibility();
@@ -164,12 +164,12 @@ document.addEventListener("DOMContentLoaded", () => {
             assistModeActive = !assistModeActive;
             if (assistModeActive) {
                 assistModeBtn.classList.add('active');
-                assistOverlay.classList.add('active');
+                assistOverlay.classList.add('active');  // obrazek staje się widoczny
             } else {
                 assistModeBtn.classList.remove('active');
                 assistOverlay.classList.remove('active');
             }
-            // Aktualizujemy widoczność przycisków markerów (asysta włączona lub target)
+            // Przyciski markerów pojawiają się lub znikają razem z asystą (o ile target nie jest wykryty)
             updateMarkersVisibility();
         });
     }
