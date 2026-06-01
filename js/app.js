@@ -187,6 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==================== TRYB ASYSTY (niezależny od markera) ====================
     let assistModeActive = false;
     let hitDetectionInterval = null;
+    let assistJustActivated = false; // flaga opóźnienia
 
     // Pozycje znaczników na ekranie (stałe, procentowo)
     const screenPositions = {
@@ -224,6 +225,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (hitDetectionInterval) clearInterval(hitDetectionInterval);
         hitDetectionInterval = setInterval(() => {
             if (!assistModeActive) return;
+            
+            // Opóźnienie po aktywacji – przez pierwsze 0.5s ignorujemy trafienia
+            if (assistJustActivated) return;
+            
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
             document.querySelectorAll('.screen-marker').forEach(marker => {
@@ -262,6 +267,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (centerDot) centerDot.classList.add('visible');
                 if (cameraDimOverlay) cameraDimOverlay.classList.add('active');
                 showScreenMarkers();   // zawsze pokazuje znaczniki, nawet bez targetu
+                
+                // Ustaw flagę opóźnienia na 0.5 sekundy, aby uniknąć natychmiastowego wykrycia
+                assistJustActivated = true;
+                setTimeout(() => {
+                    assistJustActivated = false;
+                }, 500);
             } else {
                 assistModeBtn.classList.remove('active');
                 if (centerDot) centerDot.classList.remove('visible');
