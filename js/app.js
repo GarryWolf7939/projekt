@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const centerDot = document.getElementById('center-dot');
     const cameraDimOverlay = document.getElementById('camera-dim-overlay');
 
-    // --- LOGIKA EKRANU POWITALNEGO I PAMIĘCI SESJI ---
+    // --- LOGIKA EKRANU POWITALNEGO ---
     if (sessionStorage.getItem('arGhostStarted') === 'true') {
         splashScreen.classList.add('hidden');
         setTimeout(() => {
@@ -66,9 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // Generowanie kulek 3D i przycisków markerów (zależne od AR)
+    // Generowanie kulek 3D i przycisków markerów
     carData.markers.forEach((marker) => {
-        // Kulka 3D
         const wrapper = document.createElement('a-entity');
         wrapper.setAttribute('position', marker.position); 
         const visualSphere = document.createElement('a-sphere');
@@ -78,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(visualSphere);
         anchor.appendChild(wrapper);
 
-        // Przycisk UI (po prawej stronie)
         const uiButton = document.createElement('div');
         uiButton.className = 'ui-marker-btn';
         uiButton.style.backgroundColor = marker.color; 
@@ -107,22 +105,20 @@ document.addEventListener("DOMContentLoaded", () => {
         buttonsContainer.appendChild(uiButton);
     });
 
-    // Zamknięcie panelu przez przycisk
+    // Zamknięcie panelu
     closeBtn.addEventListener('click', (event) => {
         event.preventDefault();
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
 
-    // Zamknięcie panelu po kliknięciu poza nim (ale nie na przyciski asysty/latarki)
     window.addEventListener('click', (e) => {
-        if (e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn' && !e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn')) {
+        if (e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn' && !e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn') && !e.target.closest('.screen-marker')) {
             infoPanel.classList.remove('visible');
             infoPanel.classList.add('hidden');
         }
     });
 
-    // AR: pojawienie/zniknięcie markera – nie wpływa na asystę
     anchor.addEventListener("targetFound", () => {
         buttonsContainer.classList.add('visible');
     });
@@ -131,7 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
         buttonsContainer.classList.remove('visible');
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
-        // Nie wyłączamy asysty, nie chowamy znaczników asysty
     });
 
     // Latarka
@@ -168,13 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 500);
     });
 
-    // Obsługa gestu swipe w dół na panelu
+    // Swipe w dół na panelu
     let startY = 0;
     if (infoPanel) {
         infoPanel.addEventListener('touchstart', (e) => {
             startY = e.touches[0].clientY;
         }, { passive: true });
-
         infoPanel.addEventListener('touchend', (e) => {
             let endY = e.changedTouches[0].clientY;
             if (endY > startY + 50) {
@@ -184,12 +178,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }, { passive: true });
     }
 
-    // ==================== TRYB ASYSTY (niezależny od markera) ====================
+    // ==================== TRYB ASYSTY (znaczniki klikalne, celownik statyczny) ====================
     let assistModeActive = false;
-    let hitDetectionInterval = null;
-    let assistJustActivated = false; // flaga opóźnienia
 
-    // Pozycje znaczników na ekranie (stałe, procentowo)
     const screenPositions = {
         oil: { x: 25, y: 40, name: "🛢️ Wlew oleju" },
         oil_dipstick: { x: 35, y: 50, name: "🔧 Bagnet oleju" },
@@ -208,55 +199,26 @@ document.addEventListener("DOMContentLoaded", () => {
             el.style.left = `${pos.x}%`;
             el.style.top = `${pos.y}%`;
             el.style.transform = 'translate(-50%, -50%)';
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const markerData = carData.markers.find(m => m.id === id);
+                if (markerData) {
+                    infoTitle.innerText = markerData.label;
+                    infoDesc.innerText = markerData.desc;
+                    infoPanel.classList.remove('hidden');
+                    infoPanel.classList.add('visible');
+                    if (navigator.vibrate) navigator.vibrate(50);
+                }
+            });
             markersOnScreen.appendChild(el);
         });
-        startHitDetection();
     }
 
     function hideScreenMarkers() {
-        if (hitDetectionInterval) {
-            clearInterval(hitDetectionInterval);
-            hitDetectionInterval = null;
-        }
         if (markersOnScreen) markersOnScreen.innerHTML = "";
     }
 
-    function startHitDetection() {
-        if (hitDetectionInterval) clearInterval(hitDetectionInterval);
-        hitDetectionInterval = setInterval(() => {
-            if (!assistModeActive) return;
-            
-            // Opóźnienie po aktywacji – przez pierwsze 0.5s ignorujemy trafienia
-            if (assistJustActivated) return;
-            
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            document.querySelectorAll('.screen-marker').forEach(marker => {
-                const rect = marker.getBoundingClientRect();
-                const markerX = (rect.left + rect.right) / 2;
-                const markerY = (rect.top + rect.bottom) / 2;
-                const distance = Math.hypot(markerX - centerX, markerY - centerY);
-                if (distance < 60) {
-                    if (!marker.classList.contains('highlight')) {
-                        marker.classList.add('highlight');
-                        const id = marker.id.replace('marker-', '');
-                        const markerData = carData.markers.find(m => m.id === id);
-                        if (markerData) {
-                            infoTitle.innerText = markerData.label;
-                            infoDesc.innerText = markerData.desc;
-                            infoPanel.classList.remove('hidden');
-                            infoPanel.classList.add('visible');
-                            if (navigator.vibrate) navigator.vibrate(50);
-                        }
-                    }
-                } else {
-                    marker.classList.remove('highlight');
-                }
-            });
-        }, 100);
-    }
-
-    // Obsługa przycisku asysty – włącza/wyłącza tryb, niezależnie od markera
+    // Obsługa przycisku asysty
     if (assistModeBtn) {
         assistModeBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -266,13 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 assistModeBtn.classList.add('active');
                 if (centerDot) centerDot.classList.add('visible');
                 if (cameraDimOverlay) cameraDimOverlay.classList.add('active');
-                showScreenMarkers();   // zawsze pokazuje znaczniki, nawet bez targetu
-                
-                // Ustaw flagę opóźnienia na 0.5 sekundy, aby uniknąć natychmiastowego wykrycia
-                assistJustActivated = true;
-                setTimeout(() => {
-                    assistJustActivated = false;
-                }, 500);
+                showScreenMarkers();
             } else {
                 assistModeBtn.classList.remove('active');
                 if (centerDot) centerDot.classList.remove('visible');
