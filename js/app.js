@@ -10,9 +10,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const startBtn = document.getElementById('start-btn');
     const sceneEl = document.querySelector('a-scene');
     const assistModeBtn = document.getElementById('assist-mode-btn');
-    const markersOnScreen = document.getElementById('markers-on-screen');
-    const centerDot = document.getElementById('center-dot');
-    const cameraDimOverlay = document.getElementById('camera-dim-overlay');
+    const assistOverlay = document.getElementById('assist-overlay');
+
+    // Stan
+    let isTargetFound = false;
+    let assistModeActive = false;
+
+    // Funkcja aktualizująca widoczność przycisków markerów (zależna od targetu LUB asysty)
+    function updateMarkersVisibility() {
+        if (!buttonsContainer) return;
+        if (isTargetFound || assistModeActive) {
+            buttonsContainer.classList.add('visible');
+        } else {
+            buttonsContainer.classList.remove('visible');
+        }
+    }
 
     // --- LOGIKA EKRANU POWITALNEGO ---
     if (sessionStorage.getItem('arGhostStarted') === 'true') {
@@ -31,60 +43,30 @@ document.addEventListener("DOMContentLoaded", () => {
     // Baza danych markerów
     const carData = {
         markers: [
-            { 
-                id: "oil", 
-                label: "Wlew oleju", 
-                color: "#ffee00", 
-                position: "-0.4 0.1 0.1", 
-                desc: "Pamiętaj, aby poziom oleju był zawsze między MIN a MAX. Używaj oleju zalecanego przez producenta samochodu.",
-                icon: "assets/oil.png" 
-            },
-            { 
-                id: "oil_dipstick", 
-                label: "Bagnet oleju", 
-                color: "#f3a702", 
-                position: "-0.3 0.07 0.1", 
-                desc: "Bagnet służy do sprawdzania poziomu oleju. Pamiętaj aby samochód stał na poziomym terenie oraz silnik był zimny. Wyciągnij go, wytrzyj, włóż z powrotem i ponownie wyciągnij, aby odczytać poziom.",
-                icon: "assets/bagnet_oleju.png" 
-            },
-            { 
-                id: "washer", 
-                label: "Płyn spryskiwaczy", 
-                color: "#00BFFF", 
-                position: "0.5 -0.2 0", 
-                desc: "Używaj płynu zimowego (do -20°C). Korek ma zazwyczaj niebieski kolor i symbol szyby.",
-                icon: "assets/washer.png"
-            },
-            { 
-                id: "coolant", 
-                label: "Płyn chłodniczy", 
-                color: "#FF4500", 
-                position: "0.1 0.4 0.1", 
-                desc: "UWAGA: Układ znajduje się pod ciśnieniem! Otwieraj zbiornik wyrównawczy tylko na całkowicie zimnym silniku.",
-                icon: "assets/coolant.png"
-            }
+            { id: "oil", label: "Wlew oleju", color: "#ffee00", position: "-0.4 0.1 0.1", desc: "Pamiętaj, aby poziom oleju był zawsze między MIN a MAX. Używaj oleju zalecanego przez producenta samochodu.", icon: "assets/oil.png" },
+            { id: "oil_dipstick", label: "Bagnet oleju", color: "#f3a702", position: "-0.3 0.07 0.1", desc: "Bagnet służy do sprawdzania poziomu oleju. Pamiętaj aby samochód stał na poziomym terenie oraz silnik był zimny.", icon: "assets/bagnet_oleju.png" },
+            { id: "washer", label: "Płyn spryskiwaczy", color: "#00BFFF", position: "0.5 -0.2 0", desc: "Używaj płynu zimowego (do -20°C). Korek ma zazwyczaj niebieski kolor i symbol szyby.", icon: "assets/washer.png" },
+            { id: "coolant", label: "Płyn chłodniczy", color: "#FF4500", position: "0.1 0.4 0.1", desc: "UWAGA: Układ znajduje się pod ciśnieniem! Otwieraj zbiornik wyrównawczy tylko na całkowicie zimnym silniku.", icon: "assets/coolant.png" }
         ]
     };
 
-    // Generowanie kulek 3D i przycisków markerów (prawe kółka)
+    // Generowanie kulek 3D i przycisków markerów
     carData.markers.forEach((marker) => {
         const wrapper = document.createElement('a-entity');
-        wrapper.setAttribute('position', marker.position); 
-        const visualSphere = document.createElement('a-sphere');
-        visualSphere.setAttribute('radius', '0.02'); 
-        visualSphere.setAttribute('color', marker.color);
-        visualSphere.setAttribute('position', '0 0 0'); 
-        wrapper.appendChild(visualSphere);
+        wrapper.setAttribute('position', marker.position);
+        const sphere = document.createElement('a-sphere');
+        sphere.setAttribute('radius', '0.02');
+        sphere.setAttribute('color', marker.color);
+        wrapper.appendChild(sphere);
         anchor.appendChild(wrapper);
 
-        const uiButton = document.createElement('div');
-        uiButton.className = 'ui-marker-btn';
-        uiButton.style.backgroundColor = marker.color; 
-        const imgIcon = document.createElement('img');
-        imgIcon.src = marker.icon;
-        uiButton.appendChild(imgIcon);
-
-        uiButton.addEventListener('click', (evt) => {
+        const btn = document.createElement('div');
+        btn.className = 'ui-marker-btn';
+        btn.style.backgroundColor = marker.color;
+        const img = document.createElement('img');
+        img.src = marker.icon;
+        btn.appendChild(img);
+        btn.addEventListener('click', (evt) => {
             evt.preventDefault();
             evt.stopPropagation();
             const showNewContent = () => {
@@ -101,32 +83,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 showNewContent();
             }
         });
-
-        buttonsContainer.appendChild(uiButton);
+        buttonsContainer.appendChild(btn);
     });
 
-    // Zamknięcie panelu przez przycisk
-    closeBtn.addEventListener('click', (event) => {
-        event.preventDefault();
+    // Zamknięcie panelu
+    closeBtn.addEventListener('click', () => {
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
 
-    // Zamknięcie panelu po kliknięciu poza nim
+    // Kliknięcie poza panelem
     window.addEventListener('click', (e) => {
-        if (e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn' && !e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn') && !e.target.closest('.screen-marker')) {
+        if (!e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn') && e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn') {
             infoPanel.classList.remove('visible');
             infoPanel.classList.add('hidden');
         }
     });
 
-    // AR: wykrycie/utrata markera
+    // Eventy AR – aktualizacja stanu targetu
     anchor.addEventListener("targetFound", () => {
-        buttonsContainer.classList.add('visible');
+        isTargetFound = true;
+        updateMarkersVisibility();
     });
 
     anchor.addEventListener("targetLost", () => {
-        buttonsContainer.classList.remove('visible');
+        isTargetFound = false;
+        updateMarkersVisibility();
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
@@ -138,41 +120,35 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             e.stopPropagation();
             try {
-                const videoElement = document.querySelector('video');
-                if (!videoElement || !videoElement.srcObject) {
-                    alert("Kamera jeszcze się ładuje!");
+                const video = document.querySelector('video');
+                if (!video || !video.srcObject) {
+                    alert("Kamera się ładuje...");
                     return;
                 }
-                const stream = videoElement.srcObject;
-                const track = stream.getVideoTracks()[0];
-                const capabilities = track.getCapabilities && track.getCapabilities();
-                if (!capabilities || !capabilities.torch) {
+                const track = video.srcObject.getVideoTracks()[0];
+                const caps = track.getCapabilities?.();
+                if (!caps?.torch) {
                     alert("Twoja przeglądarka nie obsługuje latarki.");
                     return;
                 }
                 isTorchOn = !isTorchOn;
                 await track.applyConstraints({ advanced: [{ torch: isTorchOn }] });
-                if (isTorchOn) { flashlightBtn.classList.add('active'); } 
-                else { flashlightBtn.classList.remove('active'); }
-            } catch (err) { console.error("Błąd włączania latarki:", err); }
+                flashlightBtn.classList.toggle('active', isTorchOn);
+            } catch (err) { console.error(err); }
         });
     }
 
     // Odświeżanie przy zmianie orientacji
     window.addEventListener("orientationchange", () => {
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
+        setTimeout(() => location.reload(), 500);
     });
 
     // Swipe w dół na panelu
     let startY = 0;
     if (infoPanel) {
-        infoPanel.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-        }, { passive: true });
+        infoPanel.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
         infoPanel.addEventListener('touchend', (e) => {
-            let endY = e.changedTouches[0].clientY;
+            const endY = e.changedTouches[0].clientY;
             if (endY > startY + 50) {
                 infoPanel.classList.remove('visible');
                 infoPanel.classList.add('hidden');
@@ -180,65 +156,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }, { passive: true });
     }
 
-    // ==================== TRYB ASYSTY (znaczniki klikalne, celownik statyczny) ====================
-    let assistModeActive = false;
-
-    // Pozycje znaczników na ekranie (w procentach)
-    const screenPositions = {
-        oil: { x: 25, y: 40, name: "🛢️ Wlew oleju" },
-        oil_dipstick: { x: 35, y: 50, name: "🔧 Bagnet oleju" },
-        washer: { x: 75, y: 35, name: "💧 Płyn spryskiwaczy" },
-        coolant: { x: 50, y: 65, name: "🌡️ Płyn chłodniczy" }
-    };
-
-    function showScreenMarkers() {
-        if (!markersOnScreen) return;
-        markersOnScreen.innerHTML = "";
-        Object.entries(screenPositions).forEach(([id, pos]) => {
-            const el = document.createElement('div');
-            el.className = 'screen-marker';
-            el.id = `marker-${id}`;
-            el.innerText = pos.name;
-            el.style.left = `${pos.x}%`;
-            el.style.top = `${pos.y}%`;
-            el.style.transform = 'translate(-50%, -50%)';
-            // Kliknięcie w znacznik otwiera panel z opisem
-            el.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const markerData = carData.markers.find(m => m.id === id);
-                if (markerData) {
-                    infoTitle.innerText = markerData.label;
-                    infoDesc.innerText = markerData.desc;
-                    infoPanel.classList.remove('hidden');
-                    infoPanel.classList.add('visible');
-                    if (navigator.vibrate) navigator.vibrate(50);
-                }
-            });
-            markersOnScreen.appendChild(el);
-        });
-    }
-
-    function hideScreenMarkers() {
-        if (markersOnScreen) markersOnScreen.innerHTML = "";
-    }
-
-    // Obsługa przycisku asysty
-    if (assistModeBtn) {
+    // ==================== TRYB ASYSTY ====================
+    if (assistModeBtn && assistOverlay) {
         assistModeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             assistModeActive = !assistModeActive;
             if (assistModeActive) {
                 assistModeBtn.classList.add('active');
-                if (centerDot) centerDot.classList.add('visible');
-                if (cameraDimOverlay) cameraDimOverlay.classList.add('active');
-                showScreenMarkers();
+                assistOverlay.classList.add('active');
             } else {
                 assistModeBtn.classList.remove('active');
-                if (centerDot) centerDot.classList.remove('visible');
-                if (cameraDimOverlay) cameraDimOverlay.classList.remove('active');
-                hideScreenMarkers();
+                assistOverlay.classList.remove('active');
             }
+            // Aktualizujemy widoczność przycisków markerów (asysta włączona lub target)
+            updateMarkersVisibility();
         });
     }
 });
