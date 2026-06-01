@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // Generowanie kulek 3D i przycisków markerów
+    // Generowanie kulek 3D i przycisków markerów (prawe kółka)
     carData.markers.forEach((marker) => {
         const wrapper = document.createElement('a-entity');
         wrapper.setAttribute('position', marker.position); 
@@ -105,13 +105,14 @@ document.addEventListener("DOMContentLoaded", () => {
         buttonsContainer.appendChild(uiButton);
     });
 
-    // Zamknięcie panelu
+    // Zamknięcie panelu przez przycisk
     closeBtn.addEventListener('click', (event) => {
         event.preventDefault();
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
 
+    // Zamknięcie panelu po kliknięciu poza nim
     window.addEventListener('click', (e) => {
         if (e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn' && !e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn') && !e.target.closest('.screen-marker')) {
             infoPanel.classList.remove('visible');
@@ -119,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // AR: wykrycie/utrata markera
     anchor.addEventListener("targetFound", () => {
         buttonsContainer.classList.add('visible');
     });
@@ -181,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==================== TRYB ASYSTY (znaczniki klikalne, celownik statyczny) ====================
     let assistModeActive = false;
 
+    // Pozycje znaczników na ekranie (w procentach)
     const screenPositions = {
         oil: { x: 25, y: 40, name: "🛢️ Wlew oleju" },
         oil_dipstick: { x: 35, y: 50, name: "🔧 Bagnet oleju" },
@@ -199,6 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
             el.style.left = `${pos.x}%`;
             el.style.top = `${pos.y}%`;
             el.style.transform = 'translate(-50%, -50%)';
+            // Kliknięcie w znacznik otwiera panel z opisem
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const markerData = carData.markers.find(m => m.id === id);
