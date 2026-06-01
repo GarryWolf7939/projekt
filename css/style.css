@@ -233,7 +233,7 @@ body, html {
     stroke: #111;
 }
 
-/* Kontener przycisków markerów (informacje o elementach) */
+/* Kontener przycisków markerów (informacje o elementach) – ponad nakładką asysty */
 #marker-buttons-container {
     position: absolute;
     top: 90px;
@@ -241,7 +241,7 @@ body, html {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    z-index: 1001;
+    z-index: 10001;          /* wyższe niż overlay (10000) */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s ease;
@@ -286,7 +286,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 10000;
+    z-index: 10000;          /* niższe niż przyciski markerów */
     pointer-events: none;
     display: none;
     opacity: 0;
@@ -330,6 +330,7 @@ body, html {
         right: 140px;
         flex-direction: row;
         gap: 10px;
+        z-index: 10001;      /* również wyższy w poziomie */
     }
 
     #info-panel {
