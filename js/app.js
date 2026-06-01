@@ -14,6 +14,53 @@ document.addEventListener("DOMContentLoaded", () => {
     const centerDot = document.getElementById('center-dot');
     const cameraDimOverlay = document.getElementById('camera-dim-overlay');
 
+    // --- POMOCNICZE FUNKCJE DO UKRYWANIA/POKAZYWANIA UI MINDAR ---
+    let mindarUIElements = null;
+
+    function getMindarUIElements() {
+        // Szukamy elementów interfejsu MindAR – mogą to być divy z klasami:
+        return document.querySelectorAll('.mindar-ui-loading, .mindar-ui-progress, .mindar-ui-overlay, .mindar-ui-panel, .mindar-ui-message');
+    }
+
+    function hideMindarUI() {
+        const elements = getMindarUIElements();
+        if (elements.length) {
+            mindarUIElements = [];
+            elements.forEach(el => {
+                mindarUIElements.push({
+                    el: el,
+                    display: el.style.display
+                });
+                el.style.display = 'none';
+            });
+        } else {
+            // Jeśli jeszcze nie istnieją, ustawiamy obserwatora, który ukryje je gdy się pojawią
+            const observer = new MutationObserver(() => {
+                const newElements = getMindarUIElements();
+                if (newElements.length) {
+                    newElements.forEach(el => el.style.display = 'none');
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+            mindarUIElements = observer; // zapisujemy do późniejszego ewentualnego rozłączenia
+        }
+    }
+
+    function showMindarUI() {
+        if (mindarUIElements && Array.isArray(mindarUIElements)) {
+            mindarUIElements.forEach(({ el, display }) => {
+                el.style.display = display || '';
+            });
+            mindarUIElements = null;
+        } else if (mindarUIElements && mindarUIElements.disconnect) {
+            // to był observer
+            mindarUIElements.disconnect();
+            mindarUIElements = null;
+        }
+        // Ponadto odświeżamy, aby MindAR mógł ponownie pokazać UI (jeśli sam je odtworzy)
+    }
+
     // --- LOGIKA EKRANU POWITALNEGO ---
     if (sessionStorage.getItem('arGhostStarted') === 'true') {
         splashScreen.classList.add('hidden');
@@ -31,59 +78,29 @@ document.addEventListener("DOMContentLoaded", () => {
     // Baza danych markerów
     const carData = {
         markers: [
-            { 
-                id: "oil", 
-                label: "Wlew oleju", 
-                color: "#ffee00", 
-                position: "-0.4 0.1 0.1", 
-                desc: "Pamiętaj, aby poziom oleju był zawsze między MIN a MAX. Używaj oleju zalecanego przez producenta samochodu.",
-                icon: "assets/oil.png" 
-            },
-            { 
-                id: "oil_dipstick", 
-                label: "Bagnet oleju", 
-                color: "#f3a702", 
-                position: "-0.3 0.07 0.1", 
-                desc: "Bagnet służy do sprawdzania poziomu oleju. Pamiętaj aby samochód stał na poziomym terenie oraz silnik był zimny. Wyciągnij go, wytrzyj, włóż z powrotem i ponownie wyciągnij, aby odczytać poziom.",
-                icon: "assets/bagnet_oleju.png" 
-            },
-            { 
-                id: "washer", 
-                label: "Płyn spryskiwaczy", 
-                color: "#00BFFF", 
-                position: "0.5 -0.2 0", 
-                desc: "Używaj płynu zimowego (do -20°C). Korek ma zazwyczaj niebieski kolor i symbol szyby.",
-                icon: "assets/washer.png"
-            },
-            { 
-                id: "coolant", 
-                label: "Płyn chłodniczy", 
-                color: "#FF4500", 
-                position: "0.1 0.4 0.1", 
-                desc: "UWAGA: Układ znajduje się pod ciśnieniem! Otwieraj zbiornik wyrównawczy tylko na całkowicie zimnym silniku.",
-                icon: "assets/coolant.png"
-            }
+            { id: "oil", label: "Wlew oleju", color: "#ffee00", position: "-0.4 0.1 0.1", desc: "Pamiętaj, aby poziom oleju był zawsze między MIN a MAX. Używaj oleju zalecanego przez producenta samochodu.", icon: "assets/oil.png" },
+            { id: "oil_dipstick", label: "Bagnet oleju", color: "#f3a702", position: "-0.3 0.07 0.1", desc: "Bagnet służy do sprawdzania poziomu oleju. Pamiętaj aby samochód stał na poziomym terenie oraz silnik był zimny. Wyciągnij go, wytrzyj, włóż z powrotem i ponownie wyciągnij, aby odczytać poziom.", icon: "assets/bagnet_oleju.png" },
+            { id: "washer", label: "Płyn spryskiwaczy", color: "#00BFFF", position: "0.5 -0.2 0", desc: "Używaj płynu zimowego (do -20°C). Korek ma zazwyczaj niebieski kolor i symbol szyby.", icon: "assets/washer.png" },
+            { id: "coolant", label: "Płyn chłodniczy", color: "#FF4500", position: "0.1 0.4 0.1", desc: "UWAGA: Układ znajduje się pod ciśnieniem! Otwieraj zbiornik wyrównawczy tylko na całkowicie zimnym silniku.", icon: "assets/coolant.png" }
         ]
     };
 
-    // Generowanie kulek 3D i przycisków markerów (prawe kółka)
+    // Generowanie kulek 3D i przycisków markerów
     carData.markers.forEach((marker) => {
         const wrapper = document.createElement('a-entity');
-        wrapper.setAttribute('position', marker.position); 
+        wrapper.setAttribute('position', marker.position);
         const visualSphere = document.createElement('a-sphere');
-        visualSphere.setAttribute('radius', '0.02'); 
+        visualSphere.setAttribute('radius', '0.02');
         visualSphere.setAttribute('color', marker.color);
-        visualSphere.setAttribute('position', '0 0 0'); 
         wrapper.appendChild(visualSphere);
         anchor.appendChild(wrapper);
 
         const uiButton = document.createElement('div');
         uiButton.className = 'ui-marker-btn';
-        uiButton.style.backgroundColor = marker.color; 
+        uiButton.style.backgroundColor = marker.color;
         const imgIcon = document.createElement('img');
         imgIcon.src = marker.icon;
         uiButton.appendChild(imgIcon);
-
         uiButton.addEventListener('click', (evt) => {
             evt.preventDefault();
             evt.stopPropagation();
@@ -101,18 +118,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 showNewContent();
             }
         });
-
         buttonsContainer.appendChild(uiButton);
     });
 
-    // Zamknięcie panelu przez przycisk
+    // Zamknięcie panelu
     closeBtn.addEventListener('click', (event) => {
         event.preventDefault();
         infoPanel.classList.remove('visible');
         infoPanel.classList.add('hidden');
     });
 
-    // Zamknięcie panelu po kliknięciu poza nim
     window.addEventListener('click', (e) => {
         if (e.target.id !== 'flashlight-btn' && e.target.id !== 'assist-mode-btn' && !e.target.closest('#info-panel') && !e.target.closest('.ui-marker-btn') && !e.target.closest('.screen-marker')) {
             infoPanel.classList.remove('visible');
@@ -120,7 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // AR: wykrycie/utrata markera
     anchor.addEventListener("targetFound", () => {
         buttonsContainer.classList.add('visible');
     });
@@ -145,32 +159,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 const stream = videoElement.srcObject;
                 const track = stream.getVideoTracks()[0];
-                const capabilities = track.getCapabilities && track.getCapabilities();
+                const capabilities = track.getCapabilities?.();
                 if (!capabilities || !capabilities.torch) {
                     alert("Twoja przeglądarka nie obsługuje latarki.");
                     return;
                 }
                 isTorchOn = !isTorchOn;
                 await track.applyConstraints({ advanced: [{ torch: isTorchOn }] });
-                if (isTorchOn) { flashlightBtn.classList.add('active'); } 
-                else { flashlightBtn.classList.remove('active'); }
-            } catch (err) { console.error("Błąd włączania latarki:", err); }
+                flashlightBtn.classList.toggle('active', isTorchOn);
+            } catch (err) { console.error("Błąd latarki:", err); }
         });
     }
 
-    // Odświeżanie przy zmianie orientacji
     window.addEventListener("orientationchange", () => {
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
+        setTimeout(() => location.reload(), 500);
     });
 
-    // Swipe w dół na panelu
     let startY = 0;
     if (infoPanel) {
-        infoPanel.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-        }, { passive: true });
+        infoPanel.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
         infoPanel.addEventListener('touchend', (e) => {
             let endY = e.changedTouches[0].clientY;
             if (endY > startY + 50) {
@@ -180,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, { passive: true });
     }
 
-    // ==================== TRYB ASYSTY (znaczniki klikalne, celownik statyczny, ukrycie animacji MindAR) ====================
+    // ==================== TRYB ASYSTY ====================
     let assistModeActive = false;
 
     const screenPositions = {
@@ -220,24 +227,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (markersOnScreen) markersOnScreen.innerHTML = "";
     }
 
-    // Obsługa przycisku asysty – przełącza również klasę na body, która ukrywa elementy UI MindAR
+    // Obsługa przycisku asysty
     if (assistModeBtn) {
         assistModeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             assistModeActive = !assistModeActive;
-            // Dodaj/usuń klasę na body – wtedy CSS ukryje animację skanowania MindAR
-            document.body.classList.toggle('assist-mode-active', assistModeActive);
             if (assistModeActive) {
                 assistModeBtn.classList.add('active');
                 if (centerDot) centerDot.classList.add('visible');
                 if (cameraDimOverlay) cameraDimOverlay.classList.add('active');
                 showScreenMarkers();
+                hideMindarUI();   // UKRYWA UI MINDAR (kółko, napisy)
             } else {
                 assistModeBtn.classList.remove('active');
                 if (centerDot) centerDot.classList.remove('visible');
                 if (cameraDimOverlay) cameraDimOverlay.classList.remove('active');
                 hideScreenMarkers();
+                showMindarUI();   // PRZYWRACA UI MINDAR
             }
         });
     }
